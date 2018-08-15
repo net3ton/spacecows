@@ -23,7 +23,7 @@ class MenuState extends FlxState
 
         labelStart1 = new FlxText(10, 10, 0, "Shadow is coming! Space cows are the only salvation.", 16);
         labelStart1.color = 0xA0A0A0;
-        labelStart2 = new FlxText(10, 40, 0, "Rise cows on land, build lighthouses on sand.", 16);
+        labelStart2 = new FlxText(10, 40, 0, "Rise cows on land, place fire on sand.", 16);
         labelStart2.color = 0x808080;
         labelStart3 = new FlxText(10, 70, 0, "Get rid of Shadow!", 16);
         labelStart3.color = 0x606060;
