@@ -7,6 +7,8 @@ import flixel.FlxG;
 
 class Camp extends FlxSprite
 {
+    public static inline var PRICE = 8;
+
     public function new(?X:Float=0, ?Y:Float=0)
     {
         super(X, Y);
@@ -17,7 +19,13 @@ class Camp extends FlxSprite
     private function initTile(): Void
     {
         loadGraphic("assets/images/camp.png", true, 13, 11);
-        animation.add("idle", [0, 1], 2, true);
-        animation.play("idle");
+        //animation.add("idle", [0, 1], 2, true);
+        //animation.play("idle");
+        //animation.frameIndex = 0;
+    }
+
+    public function nextFrame(): Void
+    {
+        animation.frameIndex += 1;
     }
 }
