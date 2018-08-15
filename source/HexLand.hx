@@ -16,8 +16,6 @@ enum LandType
 
 class HexLand extends FlxSprite
 {
-    //public const var SCALE = 3;
-
     public var landType: LandType = Random;
     public var landPos: FlxVector;
 
@@ -46,11 +44,6 @@ class HexLand extends FlxSprite
 
         initTile();
         scale.set(3, 3);
-        //offset.set(width/2, height/2);
-        //origin.set(width/2, height/2);
-        //updateHitbox();
-        //centerOffsets();
-        //centerOrigin();
 
         antialiasing = false;
         //pixelPerfectRender = true;
@@ -159,6 +152,7 @@ class HexLand extends FlxSprite
     {
         if (light > 0)
         {
+            camp.nextFrame();
             light -= 1;
             if (light <= 0)
             {
@@ -185,6 +179,11 @@ class HexLand extends FlxSprite
         cows.push(cow);
 
         return cow;
+    }
+
+    public function isCowsFull(): Bool
+    {
+        return cows.length >= cowsPoses.length;
     }
 
     public function addLight(): Camp

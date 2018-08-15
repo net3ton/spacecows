@@ -24,29 +24,29 @@ class HexMap
     private var cursorSkip: FlxSprite;
 
     private var hexDeltas: Array<FlxVector> = [
-        new FlxVector(0, -21),
-        new FlxVector(20, -11),
-        new FlxVector(20, 10),
-        new FlxVector(0, 21),
-        new FlxVector(-20, -11),
-        new FlxVector(-20, 10),
+        new FlxVector(0, -63),
+        new FlxVector(60, -33),
+        new FlxVector(60, 30),
+        new FlxVector(0, 63),
+        new FlxVector(-60, -33),
+        new FlxVector(-60, 30),
     ];
 
     public function new()
 	{
         cursorCow = new FlxSprite();
-        cursorCow.loadGraphic("assets/images/cursor-cow.png", false, 6, 4);
-
-        //FlxG.mouse.load(cursorCow.pixels);
+        cursorCow.loadGraphic("assets/images/cursor-cow.png");
+        cursorLight = new FlxSprite();
+        cursorLight.loadGraphic("assets/images/cursor-camp.png");
+        cursorSkip = new FlxSprite();
+        cursorSkip.loadGraphic("assets/images/cursor-skip.png");
     }
 
     public function createPatch(pos: FlxVector, to: FlxState): Void
 	{
-        var hexScale = 3;
-
         for (delta in hexDeltas)
         {
-            createIfNeeded(pos.x + delta.x * hexScale, pos.y + delta.y * hexScale, to);
+            createIfNeeded(pos.x + delta.x, pos.y + delta.y, to);
         }
 	}
 
@@ -64,8 +64,14 @@ class HexMap
 
         /// init enemy
         var random: FlxRandom = new FlxRandom();
-        var rand = random.int(0, 17);
-        var locust = lands[lands.length - rand - 1];
+        var locust: HexLand = null;
+        while (locust == null)
+        {
+            var rand = random.int(0, 17);
+            locust = lands[lands.length - rand - 1];
+            if (locust.landType == Sea)
+                locust = null;
+        }
 
         locust.setLocust(true);
         locusts.push(locust);
@@ -104,9 +110,8 @@ class HexMap
         for (land in lands)
         {
             var landPos = land.landPos;
-            var dist = Math.pow((pos.x - landPos.x), 2) + Math.pow((pos.y - landPos.y), 2);
-
-            if (dist < 700)
+            var dist = Math.abs(land.landPos.x - pos.x) + Math.abs(land.landPos.y - pos.y);
+            if (dist < 40)
                 return land;
         }
 
@@ -119,7 +124,7 @@ class HexMap
 
         for (delta in hexDeltas)
         {
-            var sideHex = getLand(hex.landPos.x + delta.x * 3, hex.landPos.y + delta.y * 3);
+            var sideHex = getLand(hex.landPos.x + delta.x, hex.landPos.y + delta.y);
             if (sideHex != null)
                 nearby.push(sideHex);
         }
@@ -141,12 +146,11 @@ class HexMap
                     if (sideHex.landType == Sea)
                         continue;
 
-                    var some1 = getNearbyHexes(sideHex);
+                    var sideRound = getNearbyHexes(sideHex);
                     var can = true;
-
-                    for (some in some1)
+                    for (rhex in sideRound)
                     {
-                        if (some.isLight())
+                        if (rhex.isLight())
                         {
                             can = false;
                             break;
@@ -155,9 +159,6 @@ class HexMap
 
                     if (can)
                         next.push(sideHex);
-
-                    //if (!sideHex.isLight())
-                    //    next.push(sideHex);
                 }
             }
         }
@@ -169,32 +170,9 @@ class HexMap
         var rand = random.int(0, next.length - 1);
         var locust = next[rand];
 
-        //if (checkProtection(locust))
-        //    return;
-
         locust.setLocust(true);
         locusts.push(locust);
     }
-
-    /*
-    private function checkProtection(locust: HexLand): Bool
-    {
-        var nearLocust = getNearbyHexes(locust);
-        nearLocust.push(locust);
-
-        for (sideHex in nearLocust)
-        {
-            if (sideHex.hitLight())
-            {
-                level.addHint(sideHex.landPos.x, sideHex.landPos.y, "-1");
-                level.addHint(locust.landPos.x, locust.landPos.y, "protected");
-                return true;
-            }
-        }
-
-        return false;
-    }
-    */
 
     private function processLocust(): Void
     {
@@ -202,13 +180,15 @@ class HexMap
         {
             if (hex.hitCowByLocust())
             {
-                level.addHint(hex.landPos.x, hex.landPos.y, "-1");
+                //level.addHint(hex.landPos.x, hex.landPos.y, "-1");
             }
         }
     }
 
     private function nextTurn(): Void
     {
+        level.clearHints();
+
         turn += 1;
         gameWin = true;
 
@@ -219,14 +199,23 @@ class HexMap
 
             if (land.landType == Field)
             {
-                spiceCount += land.harvest();
+                var count = land.harvest();
+                if (count > 0)
+                {
+                    level.addHint(land.landPos.x, land.landPos.y - 15, "+" + count);
+                    spiceCount += count;
+                }
             }
 
             if (land.landType == Sand)
             {
-                var count = land.hitLight();
-                if (count > 0)
-                    level.addHint(land.landPos.x, land.landPos.y, "" + count);
+                land.hitLight();
+
+                //var count = land.hitLight();
+                //if (count > 0)
+                //{
+                //    level.addHint(land.landPos.x, land.landPos.y, "" + count);
+                //}
             }
         }
 
@@ -263,13 +252,6 @@ class HexMap
             {
                 if (nearHex.isLocust())
                 {
-                    /*
-                    hex.hitLight();
-
-                    level.addHint(hex.landPos.x, hex.landPos.y, "-1");
-                    level.addHint(nearHex.landPos.x, nearHex.landPos.y, "protected");
-                    */
-
                     locusts.remove(nearHex);
                     nearHex.setLocust(false);
                 }
@@ -293,19 +275,16 @@ class HexMap
             {
                 if (!land.isLocust())
                 {
-                    if (land.landType == Field)
+                    if (land.landType == Field && !land.isCowsFull())
                     {
                         addCow(land);
                         level.playCow();
                     }
-                    else if (land.landType == Sand)
+                    else if (land.landType == Sand && !land.isLight() && spiceCount >= Camp.PRICE)
                     {
-                        if (spiceCount >= 5)
-                        {
-                            spiceCount -= 5;
-                            addLight(land);
-                            level.playCamp();
-                        }
+                        spiceCount -= Camp.PRICE;
+                        addLight(land);
+                        level.playCamp();
                     }
                     else 
                     {
@@ -325,6 +304,25 @@ class HexMap
             }
         }
 
-
+        // mouse icon
+        FlxG.mouse.useSystemCursor = true;
+        var mousePos = FlxG.mouse.getScreenPosition();
+        var land = hittestLand(mousePos);
+        if (land != null)
+        {
+            FlxG.mouse.useSystemCursor = false;
+            if (land.landType == Field && !land.isLocust() && !land.isCowsFull())
+            {
+                FlxG.mouse.load(cursorCow.pixels, 4.0, -12, -8);
+            }
+            else if (land.landType == Sand && spiceCount >= Camp.PRICE && !land.isLight() && !land.isLocust())
+            {
+                FlxG.mouse.load(cursorLight.pixels, 3.0, -18, -15);
+            }
+            else 
+            {
+                FlxG.mouse.load(cursorSkip.pixels, 3.0, -18, -18);
+            }
+        }
     }
 }

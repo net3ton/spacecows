@@ -42,7 +42,6 @@ class PlayState extends FlxState
 		map = new HexMap();
 		map.createMap(new FlxVector(FlxG.width/2, FlxG.height/2), this);
 	
-		initComplete();
 		updateLabels();
 
 		FlxG.sound.load("assets/sounds/start.wav").play();
@@ -70,6 +69,8 @@ class PlayState extends FlxState
 
 	private function showComplete(title: String, text: String): Void
 	{
+		initComplete();
+
 		labelComplete.text = title;
 		labelComplete.x = (FlxG.width - labelComplete.fieldWidth) / 2;
 		labelComplete.visible = true;
@@ -99,6 +100,14 @@ class PlayState extends FlxState
 
 		hints.push(hint);
 		add(hint);
+	}
+
+	public function clearHints(): Void
+	{
+		for (hint in hints)
+			hint.kill();
+		
+		hints = [];
 	}
 
 	public function playCow(): Void
