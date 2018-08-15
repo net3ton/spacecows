@@ -22,6 +22,7 @@ class PlayState extends FlxState
 
 	private var map: HexMap;
 	private var hints: Array<TextHint> = [];
+	private var hintsMaxCount = 10;
 
 	override public function create():Void
 	{
@@ -42,6 +43,7 @@ class PlayState extends FlxState
 		map = new HexMap();
 		map.createMap(new FlxVector(FlxG.width/2, FlxG.height/2), this);
 	
+		initHints();
 		updateLabels();
 
 		FlxG.sound.load("assets/sounds/start.wav").play();
@@ -92,22 +94,37 @@ class PlayState extends FlxState
 		FlxG.sound.load("assets/sounds/win.wav").play();
 	}
 
+	private function initHints(): Void
+	{
+		for (i in 0...hintsMaxCount)
+		{
+			var hint = new TextHint(0, 0, 0, "", 16);
+			hint.visible = false;
+			hints.push(hint);
+			add(hint);
+		}
+	}
+
+	private function getFreeHint(): TextHint
+	{
+		for (hint in hints)
+		{
+			if (!hint.visible)
+				return hint;
+		}
+
+		return hints[0];
+	}
+
 	public function addHint(x: Float, y: Float, text: String): Void
 	{
-		var hint = new TextHint(x, y, 0, text, 16);
-		hint.x -= hint.fieldWidth/2;
-		hint.resetTime();
-
-		hints.push(hint);
-		add(hint);
+		getFreeHint().setup(x, y, text);
 	}
 
 	public function clearHints(): Void
 	{
 		for (hint in hints)
-			hint.kill();
-		
-		hints = [];
+			hint.visible = false;
 	}
 
 	public function playCow(): Void
@@ -136,12 +153,6 @@ class PlayState extends FlxState
 		map.update(elapsed);
 
 		for (hint in hints)
-		{
-			if (hint.process(elapsed))
-			{
-				hints.remove(hint);
-				hint.kill();
-			}
-		}
+			hint.process(elapsed);
 	}
 }
