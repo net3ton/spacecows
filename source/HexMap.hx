@@ -83,16 +83,21 @@ class HexMap
             createPatch(hex.landPos, to);
     }
 
-    private function getLand(x: Float, y: Float): HexLand
+    private function getLandByPos(x: Float, y: Float, dist: Float): HexLand
     {
         for (land in lands)
         {
             var diff = Math.abs(land.landPos.x - x) + Math.abs(land.landPos.y - y);
-            if (diff < 5)
+            if (diff < dist)
                 return land;
         }
 
         return null;
+    }
+
+    private function getLand(x: Float, y: Float): HexLand
+    {
+        return getLandByPos(x, y, 5);
     }
 
     private function createIfNeeded(x: Float, y: Float, to: FlxState): Void
@@ -107,15 +112,7 @@ class HexMap
 
     private function hittestLand(pos: FlxPoint): HexLand
     {
-        for (land in lands)
-        {
-            var landPos = land.landPos;
-            var dist = Math.abs(land.landPos.x - pos.x) + Math.abs(land.landPos.y - pos.y);
-            if (dist < 40)
-                return land;
-        }
-
-        return null;
+        return getLandByPos(pos.x, pos.y, 40);
     }
 
     private function getNearbyHexes(hex: HexLand): Array<HexLand>
@@ -304,8 +301,13 @@ class HexMap
             }
         }
 
-        // mouse icon
+        updateMouseCursor();
+    }
+
+    private function updateMouseCursor(): Void
+    {
         FlxG.mouse.useSystemCursor = true;
+
         var mousePos = FlxG.mouse.getScreenPosition();
         var land = hittestLand(mousePos);
         if (land != null)

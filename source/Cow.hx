@@ -1,9 +1,7 @@
 package;
 
 import flixel.FlxSprite;
-import flixel.math.FlxVector;
 import flixel.math.FlxRandom;
-import flixel.FlxG;
 
 class Cow extends FlxSprite
 {
