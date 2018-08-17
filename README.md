@@ -1,6 +1,6 @@
 # Space Cows
 
-Shadow is coming! Cows are the only salvation.
+Shadow is coming! Cows are the only salvation.  
 Ludum Dare 42 game. Theme: Running out of space.  
 
 Play in browser (HTML5 version):  
