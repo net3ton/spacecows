@@ -260,9 +260,15 @@ class HexMap
     {
         if (FlxG.mouse.justPressed)
         {
-            if (gameOver || gameWin)
+            if (gameOver)
             {
                 FlxG.switchState(new MenuState());
+                return;
+            }
+
+            if (gameWin)
+            {
+                flixel.FlxG.switchState(new WinState().setScore(turn));
                 return;
             }
 

@@ -53,10 +53,11 @@ class LeadersState extends FlxState
         super.create();
 	}
 
-    public function init(name: String, score: Int)
+    public function init(name: String, score: Int): LeadersState
     {
         pname = name;
         pscore = score;
+        return this;
     }
 
     private function updateLine(line: BoardLine, pos: Int, name: String, score: Int)
@@ -120,7 +121,7 @@ class LeadersState extends FlxState
 	{
 		super.update(elapsed);
 
-        if (FlxG.keys.justReleased.ENTER)
+        if (FlxG.keys.justReleased.ENTER || FlxG.mouse.justPressed)
         {
             FlxG.switchState(new MenuState());
         }

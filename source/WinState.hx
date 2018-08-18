@@ -45,9 +45,10 @@ class WinState extends FlxState
         super.create();
 	}
 
-    public function setScore(score: Int)
+    public function setScore(score: Int): WinState
     {
         pscore = score;
+        return this;
     }
 
     private function updateName()
@@ -83,9 +84,7 @@ class WinState extends FlxState
         var gonext = FlxG.mouse.justPressed || FlxG.keys.justReleased.ENTER;
         if (gonext && pname != "")
         {
-            var menu = new LeadersState();
-            menu.init(pname, pscore);
-            FlxG.switchState(menu);
+            FlxG.switchState(new LeadersState().init(pname, pscore));
         }
 	}
 }
