@@ -1,0 +1,1 @@
+scp -i keys/aws.pem server.py ubuntu@ec2-xxx-xxx-xxx-xxx.us-east-2.compute.amazonaws.com:/var/spacecows/server.py
