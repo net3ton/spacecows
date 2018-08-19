@@ -136,16 +136,16 @@ class HexLand extends FlxSprite
         return light > 0;
     }
 
-    public function hitCowByLocust(): Bool
+    public function hitCowByLocust(): Cow
     {
         if (cows.length > 0)
         {
            var cow = cows.pop();
            cow.kill();
-           return true;
+           return cow;
         }
 
-        return false;
+        return null;
     }
 
     public function hitLight(): Int
@@ -171,11 +171,11 @@ class HexLand extends FlxSprite
 
     public function addCow(): Cow
     {
-        if (cows.length >= cowsPoses.length)
+        if (isCowsFull())
             return null;
 
         var posOffset = cowsPoses[cows.length];
-        var cow = new Cow(landPos.x + posOffset.x, landPos.y + posOffset.y);
+        var cow = Cow.create(landPos.x + posOffset.x, landPos.y + posOffset.y);
         cows.push(cow);
 
         return cow;

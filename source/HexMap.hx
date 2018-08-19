@@ -175,8 +175,10 @@ class HexMap
     {
         for (hex in locusts)
         {
-            if (hex.hitCowByLocust())
+            var cow = hex.hitCowByLocust();
+            if (cow != null)
             {
+                level.remove(cow);
                 //level.addHint(hex.landPos.x, hex.landPos.y, "-1");
             }
         }

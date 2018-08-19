@@ -5,14 +5,14 @@ import flixel.math.FlxRandom;
 
 class Cow extends FlxSprite
 {
-    public function new(?X:Float=0, ?Y:Float=0)
+    public function new(x: Float, y: Float)
     {
-        super(X, Y);
+        super(x, y);
         initTile();
         scale.set(3, 3);
     }
 
-    private function initTile(): Void
+    private function initTile()
     {
         var random: FlxRandom = new FlxRandom();
         var rand = random.int(0, 99);
@@ -26,5 +26,28 @@ class Cow extends FlxSprite
 
         animation.add("idle", [0, 1, 2], 1, true);
         animation.play("idle");
+    }
+
+    override public function destroy()
+    {
+        kill();
+    }
+
+    public static var cowsPool: Array<Cow> = [];
+
+    public static function create(x: Float, y: Float): Cow
+    {
+        for (cow in cowsPool)
+        {
+            if (!cow.alive)
+            {
+                cow.reset(x, y);
+                return cow;
+            }
+        }
+
+        var cow = new Cow(x, y);
+        cowsPool.push(cow);
+        return cow;
     }
 }
