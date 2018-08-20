@@ -26,6 +26,7 @@ class Leaders
         var request = new Http("http://some-url:port/");
         request.addParameter("score", "" + scores);
         request.addParameter("name", name);
+        request.addHeader("Content-Type", "text/plain");
 
         request.onData = onResultData;
         request.onError = onResultError;

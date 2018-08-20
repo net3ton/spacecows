@@ -79,7 +79,7 @@ def application(env, start_response):
 
             if len(pname) > 0 and pscoreInt > 0:
                 result = prepare_result(pname, pscoreInt)
-                start_response('200 OK', [('Content-Type', 'text/html')])
+                start_response('200 OK', [('Content-Type', 'text/html'), ('Access-Control-Allow-Origin', '*')])
                 return json.dumps(result)
 
     empty = {}
@@ -87,7 +87,7 @@ def application(env, start_response):
     empty['leaders'] = []
     empty['around'] = []
 
-    start_response('404 Not Found', [('Content-Type', 'text/html')])
+    start_response('404 Not Found', [('Content-Type', 'text/html'), ('Access-Control-Allow-Origin', '*')])
     return json.dumps(empty)
 
-WSGIServer(('0.0.0.0', 610), application).serve_forever()
+WSGIServer(('0.0.0.0', 610), application, keyfile='serv.key', certfile='serv.crt').serve_forever()
