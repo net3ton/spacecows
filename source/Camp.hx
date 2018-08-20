@@ -19,9 +19,8 @@ class Camp extends FlxSprite
     private function initTile(): Void
     {
         loadGraphic("assets/images/camp.png", true, 13, 11);
-        //animation.add("idle", [0, 1], 2, true);
-        //animation.play("idle");
-        //animation.frameIndex = 0;
+        animation.add("idle", [3, 2, 1], 5, true);
+        animation.frameIndex = 0;
     }
 
     public function nextFrame(): Void

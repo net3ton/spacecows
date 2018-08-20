@@ -25,7 +25,7 @@ class Cow extends FlxSprite
             loadGraphic(AssetPaths.cow03__png, true, 6, 4);
 
         animation.add("idle", [0, 1, 2], 1, true);
-        animation.play("idle");
+        animation.play("idle", false, false, -1);
     }
 
     override public function destroy()
