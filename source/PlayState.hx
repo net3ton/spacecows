@@ -18,7 +18,6 @@ class PlayState extends FlxState
 	private var cowSound: FlxSound;
 	private var campSound: FlxSound;
 	private var noneSound: FlxSound;
-	private var clickSound: FlxSound;
 
 	private var map: HexMap;
 	private var hints: Array<TextHint> = [];
@@ -35,7 +34,6 @@ class PlayState extends FlxState
 		cowSound = FlxG.sound.load("assets/sounds/cow.wav");
 		campSound = FlxG.sound.load("assets/sounds/camp.wav");
 		noneSound = FlxG.sound.load("assets/sounds/none.wav");
-		clickSound = FlxG.sound.load("assets/sounds/click.wav");
 
 		add(labelSpice);
 		add(labelTurn);
@@ -140,11 +138,6 @@ class PlayState extends FlxState
 	public function playNone(): Void
 	{
 		noneSound.play();
-	}
-
-	public function playClick(): Void
-	{
-		clickSound.play();
 	}
 
 	override public function update(elapsed:Float):Void

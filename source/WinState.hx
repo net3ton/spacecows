@@ -124,6 +124,7 @@ class WinState extends FlxState
         var gonext = FlxG.mouse.justPressed || FlxG.keys.justReleased.ENTER;
         if (gonext && pname != "")
         {
+            FlxG.sound.load("assets/sounds/click.wav").play();
             FlxG.switchState(new LeadersState().init(pname, pscore));
         }
 

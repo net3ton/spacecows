@@ -7,7 +7,7 @@ import flixel.FlxG;
 
 class Camp extends FlxSprite
 {
-    public static inline var PRICE = 8;
+    public static inline var PRICE = 5;
 
     public function new(?X:Float=0, ?Y:Float=0)
     {
