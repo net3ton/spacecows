@@ -47,6 +47,10 @@ class LeadersState extends FlxState
             add(line.score);
         }
 
+        var labelNext = new FlxText(10, 445, 0, "Click / Press Enter to restart", 16);
+        labelNext.x = (FlxG.width - labelNext.fieldWidth) / 2;
+        add(labelNext);
+
         leaders.onUpdate = updateLeaderboard;
         leaders.sendResults(pname, pscore);
 

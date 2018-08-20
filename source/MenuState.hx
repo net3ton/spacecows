@@ -4,6 +4,7 @@ import flixel.FlxG;
 import flixel.FlxState;
 import flixel.text.FlxText;
 import flixel.math.FlxVector;
+import flixel.math.FlxRandom;
 
 class MenuState extends FlxState
 {
@@ -39,6 +40,15 @@ class MenuState extends FlxState
         map = new HexMap();
 		map.createPatch(new FlxVector(FlxG.width/2, FlxG.height/2), this);
         map.expandMap(this);
+
+        var random: FlxRandom = new FlxRandom();
+        for (land in map.getLands())
+        {
+            if (land.landType == Field && random.int(0, 99) < 30)
+            {
+                land.addCows(this, random.int(0, 5));
+            }
+        }
 
         add(labelStart1);
         add(labelStart2);

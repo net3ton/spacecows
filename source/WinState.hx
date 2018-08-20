@@ -17,6 +17,10 @@ class WinState extends FlxState
     private var nameCharacters = "-_.0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
     private var nameMaxLen = 16;
 
+    private static inline var ENTER_TIMER = 0.3;
+    private var pnameEnter = "";
+    private var pnameEnterTimer: Float = ENTER_TIMER;
+
 	override public function create():Void
 	{
         FlxG.mouse.useSystemCursor = true;
@@ -39,11 +43,46 @@ class WinState extends FlxState
         add(labelEnter);
         add(labelName);
 
+        var labelNext = new FlxText(10, 445, 0, "Click / Press Enter to continue", 16);
+        labelNext.x = (FlxG.width - labelNext.fieldWidth) / 2;
+        add(labelNext);
+
+        prepareCompo(pscore);
+
         updateName();
         FlxG.stage.addEventListener(flash.events.KeyboardEvent.KEY_DOWN, onKeyDown);
 
         super.create();
 	}
+
+    private function prepareCompo(score: Int)
+    {
+        var minScore = Std.int(Math.max(score - 25, 0));
+        var cowsTop = Std.int(5 - Math.min(minScore / 20, 5));
+        var cowsTwo = Std.int(10 - Math.min(minScore / 30, 10));
+        var cowsTwo1 = Std.int(cowsTwo / 2);
+        var cowsTwo2 = cowsTwo - cowsTwo1;
+
+        var land = new HexLand(FlxG.width/2, 340, Field);
+        add(land);
+        land.addCows(this, cowsTop);
+
+        var land21 = makeNeighbour(land, Sea, RightBottom);
+        var land22 = makeNeighbour(land21, Field, RightTop).addCows(this, cowsTwo1);
+        makeNeighbour(land22, Sand, RightBottom).addFire(this);
+
+        var land11 = makeNeighbour(land, Sea, LeftBottom);
+        var land12 = makeNeighbour(land11, Field, LeftTop).addCows(this, cowsTwo2);
+        makeNeighbour(land12, Sand, LeftBottom).addFire(this);
+    }
+
+    private function makeNeighbour(hex: HexLand, type: HexLand.LandType, dir: HexLand.LandNeighbour): HexLand
+    {
+        var pos = hex.getNeighbourPos(dir);
+        var land = new HexLand(pos.x, pos.y, type);
+        add(land);
+        return land;
+    }
 
     public function setScore(score: Int): WinState
     {
@@ -55,6 +94,7 @@ class WinState extends FlxState
     {
         labelName.text = pname;
         labelName.x = (FlxG.width - labelName.fieldWidth) / 2;
+        labelName.text += pnameEnter;
     }
 
     private function onKeyDown(evt: flash.events.KeyboardEvent)
@@ -85,6 +125,14 @@ class WinState extends FlxState
         if (gonext && pname != "")
         {
             FlxG.switchState(new LeadersState().init(pname, pscore));
+        }
+
+        pnameEnterTimer -= elapsed;
+        if (pnameEnterTimer <= 0)
+        {
+            pnameEnterTimer = ENTER_TIMER;
+            pnameEnter = (pnameEnter == "") ? "_" : "";
+            updateName();
         }
 	}
 }

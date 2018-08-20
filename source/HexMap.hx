@@ -42,6 +42,11 @@ class HexMap
         cursorSkip.loadGraphic("assets/images/cursor-skip.png");
     }
 
+    public function getLands(): Array<HexLand>
+    {
+        return lands;
+    }
+
     public function createPatch(pos: FlxVector, to: FlxState): Void
 	{
         for (delta in hexDeltas)
@@ -270,7 +275,7 @@ class HexMap
 
             if (gameWin)
             {
-                flixel.FlxG.switchState(new WinState().setScore(turn));
+                FlxG.switchState(new WinState().setScore(turn));
                 return;
             }
 

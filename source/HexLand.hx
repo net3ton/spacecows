@@ -1,6 +1,7 @@
 package;
 
 import flixel.FlxSprite;
+import flixel.FlxState;
 import flixel.math.FlxVector;
 import flixel.math.FlxRandom;
 
@@ -12,6 +13,16 @@ enum LandType
     Sand;
     Field;
     Sea;
+}
+
+enum LandNeighbour
+{
+    Top;
+    RightTop;
+    RightBottom;
+    Bottom;
+    LeftBottom;
+    LeftTop;
 }
 
 class HexLand extends FlxSprite
@@ -93,6 +104,24 @@ class HexLand extends FlxSprite
             return Sea;
 
         return Field;
+    }
+
+    public function getNeighbourPos(pos: LandNeighbour): FlxVector
+    {
+        if (pos == Top)
+            return new FlxVector(landPos.x, landPos.y - 63);
+        if (pos == RightTop)
+            return new FlxVector(landPos.x + 60, landPos.y - 33);
+        if (pos == RightBottom)
+            return new FlxVector(landPos.x + 60, landPos.y + 30);
+        if (pos == Bottom)
+            return new FlxVector(landPos.x, landPos.y + 63);
+        if (pos == LeftBottom)
+            return new FlxVector(landPos.x - 60, landPos.y + 30);
+        if (pos == LeftTop)
+            return new FlxVector(landPos.x - 60, landPos.y - 33);
+
+        return new FlxVector(landPos.x, landPos.y);
     }
 
     public function harvest(): Int
@@ -196,5 +225,29 @@ class HexLand extends FlxSprite
         }
 
         return null;
+    }
+
+    public function addFire(to: FlxState): HexLand
+    {
+        var fire = addLight();
+        if (fire != null)
+        {
+            fire.animation.play("idle", false, false, -1);
+            to.add(fire);
+        }
+
+        return this;
+    }
+
+    public function addCows(to: FlxState, count: Int): HexLand
+    {
+        for (i in 0...count)
+        {
+            var cow = addCow();
+            if (cow != null)
+                to.add(cow);
+        }
+
+        return this;
     }
 }
