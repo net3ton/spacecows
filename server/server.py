@@ -2,6 +2,8 @@ import re
 import json
 import redis
 from gevent.pywsgi import WSGIServer
+from gevent.server import StreamServer
+from geventwebsocket.handler import WebSocketHandler
 
 REG_INPUT = re.compile("name=([A-z0-9\-\_\.]*)&score=([0-9]*)")
 COUNT_LEADERS = 15
@@ -70,24 +72,54 @@ def prepare_result(name, score):
     return data
 
 
-def application(env, start_response):
-    if 'QUERY_STRING' in env:
-        pinfo = REG_INPUT.search(env['QUERY_STRING'])
-        if pinfo:
-            pname, pscore = pinfo.groups()
-            pscoreInt = int(pscore)
+def proccess_query(query):
+    pinfo = REG_INPUT.search(query)
+    if pinfo:
+        pname, pscore = pinfo.groups()
+        pscoreInt = int(pscore)
 
-            if len(pname) > 0 and pscoreInt > 0:
-                result = prepare_result(pname, pscoreInt)
-                start_response('200 OK', [('Content-Type', 'text/html'), ('Access-Control-Allow-Origin', '*')])
-                return json.dumps(result)
+        if len(pname) > 0 and pscoreInt > 0:
+            result = prepare_result(pname, pscoreInt)
+            return (json.dumps(result), True)
 
     empty = {}
     empty['pos'] = -1
     empty['leaders'] = []
     empty['around'] = []
+    return (json.dumps(empty), False)
 
-    start_response('404 Not Found', [('Content-Type', 'text/html'), ('Access-Control-Allow-Origin', '*')])
-    return json.dumps(empty)
 
-WSGIServer(('0.0.0.0', 610), application, keyfile='serv.key', certfile='serv.crt').serve_forever()
+def httpserver(env, start_response):
+    pinfo = ""
+    if 'QUERY_STRING' in env:
+        pinfo = env['QUERY_STRING']
+
+    response, result = proccess_query(pinfo)
+    header = [('Content-Type', 'text/html'), ('Access-Control-Allow-Origin', '*')]
+
+    if result:
+        start_response('200 OK', header)
+    else:
+        start_response('404 Not Found', header)
+    return response
+
+
+def socketserver(socket, address):
+    pinfo = socket.recv(1024)
+    if pinfo:
+        response, result = proccess_query(pinfo)
+        socket.sendall(response)
+
+
+def webserver(env, start_response):
+    ws = env['wsgi.websocket']
+    pinfo = ws.receive()
+    if pinfo:
+        response, result = proccess_query(pinfo)
+        ws.send(response)
+    return []
+
+
+#WSGIServer(('0.0.0.0', 610), httpserver, keyfile='serv.key', certfile='serv.crt').serve_forever()
+#StreamServer(('0.0.0.0', 610), socketserver).serve_forever()
+WSGIServer(('0.0.0.0', 610), webserver, handler_class=WebSocketHandler).serve_forever()
