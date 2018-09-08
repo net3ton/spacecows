@@ -2,7 +2,6 @@ package;
 
 import haxe.Json;
 //import haxe.Http;
-//import sys.net.Socket;
 import js.html.WebSocket;
 
 typedef LeaderItem = {
@@ -19,8 +18,8 @@ typedef LeadersData = {
 
 class Leaders
 {
-    public static inline var SNAME = "some.com";
-    public static inline var SPORT = 800;
+    public static inline var SNAME = "spacecows.ga";
+    public static inline var SPORT = 610;
 
     public function new()
     {
@@ -30,7 +29,7 @@ class Leaders
     {
         var query = "name=" + name + "&score=" + score;
 
-        var sock = new WebSocket("ws://" + SNAME + ":" + SPORT);
+        var sock = new WebSocket("wss://" + SNAME + ":" + SPORT);
         sock.onopen = function()
         {
             sock.send(query);
@@ -48,13 +47,6 @@ class Leaders
         {
             onResultError(error.message);
         }
-
-        /*
-        var socket = new Socket();
-        socket.connect(new Host(SNAME), SPORT);
-        socket.write(query);
-        onResultData(socket.read());
-        */
 
         /*
         var request = new Http("https://" + SNAME + ":" + SPORT);

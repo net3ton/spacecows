@@ -119,7 +119,9 @@ def webserver(env, start_response):
         ws.send(response)
     return []
 
+KEY = '/etc/letsencrypt/live/spacecows.ga/privkey.pem'
+CERT = '/etc/letsencrypt/live/spacecows.ga/fullchain.pem'
 
 #WSGIServer(('0.0.0.0', 610), httpserver, keyfile='serv.key', certfile='serv.crt').serve_forever()
 #StreamServer(('0.0.0.0', 610), socketserver).serve_forever()
-WSGIServer(('0.0.0.0', 610), webserver, handler_class=WebSocketHandler).serve_forever()
+WSGIServer(('0.0.0.0', 610), webserver, handler_class=WebSocketHandler, keyfile=KEY, certfile=CERT).serve_forever()
