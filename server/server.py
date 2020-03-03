@@ -26,7 +26,7 @@ def prepare_result(name, score):
     pid = REDIS.zcard(REDIS_KEY)
     pkey = make_pkey(pid, name)
 
-    REDIS.zadd(REDIS_KEY, score, pkey)
+    REDIS.zadd(REDIS_KEY, { pkey: score })
     REDIS.save()
 
     leaders = REDIS.zrange(REDIS_KEY, 0, COUNT_LEADERS-1, withscores=True)

@@ -1,8 +1,12 @@
 package;
 
 import haxe.Json;
-//import haxe.Http;
+
+#if js
 import js.html.WebSocket;
+#else
+import haxe.Http;
+#end
 
 typedef LeaderItem = {
     var pos: Int;
@@ -25,10 +29,10 @@ class Leaders
     {
     }
 
-    public function sendResults(name: String, score: Int)
+    public function sendResults(name: String, scores: Int)
     {
-        var query = "name=" + name + "&score=" + score;
-
+#if js
+        var query = "name=" + name + "&score=" + scores;
         var sock = new WebSocket("wss://" + SNAME + ":" + SPORT);
         sock.onopen = function()
         {
@@ -47,8 +51,7 @@ class Leaders
         {
             onResultError(error.message);
         }
-
-        /*
+#else
         var request = new Http("https://" + SNAME + ":" + SPORT);
         request.addParameter("score", "" + scores);
         request.addParameter("name", name);
@@ -56,9 +59,10 @@ class Leaders
 
         request.onData = onResultData;
         request.onError = onResultError;
+        request.cnxTimeout = 1.0;
 
         request.request();
-        */
+#end
     }
 
     public dynamic function onUpdate(board: LeadersData)
