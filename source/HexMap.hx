@@ -265,7 +265,11 @@ class HexMap
 
     public function update(elapsed: Float): Void 
     {
+#if mobile
+        if (FlxG.touches.justReleased().length > 0)
+#else
         if (FlxG.mouse.justPressed)
+#end
         {
             if (gameOver)
             {
@@ -279,7 +283,11 @@ class HexMap
                 return;
             }
 
+#if mobile
+            var mousePos = FlxG.touches.justReleased()[0].justPressedPosition;
+#else
             var mousePos = FlxG.mouse.getScreenPosition();
+#end
             var land = hittestLand(mousePos);
             if (land != null)
             {
@@ -319,6 +327,7 @@ class HexMap
 
     private function updateMouseCursor(): Void
     {
+#if !mobile
         FlxG.mouse.useSystemCursor = true;
 
         var mousePos = FlxG.mouse.getScreenPosition();
@@ -339,5 +348,6 @@ class HexMap
                 FlxG.mouse.load(cursorSkip.pixels, 3.0, -18, -18);
             }
         }
+#end
     }
 }

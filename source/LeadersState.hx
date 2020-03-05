@@ -125,7 +125,11 @@ class LeadersState extends FlxState
 	{
 		super.update(elapsed);
 
+#if mobile
+        if (FlxG.touches.justReleased().length > 0)
+#else
         if (FlxG.keys.justReleased.ENTER || FlxG.mouse.justPressed)
+#end
         {
             FlxG.sound.load("assets/sounds/click.wav").play();
             FlxG.switchState(new MenuState());

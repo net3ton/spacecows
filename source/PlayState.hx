@@ -25,7 +25,9 @@ class PlayState extends FlxState
 
 	override public function create():Void
 	{
+#if !mobile
 		FlxG.mouse.useSystemCursor = true;
+#end
 		//FlxG.debugger.drawDebug = true;
 
 		labelSpice = new FlxText(15, 10, 0, "", 16);

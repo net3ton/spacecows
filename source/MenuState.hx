@@ -20,7 +20,9 @@ class MenuState extends FlxState
 
 	override public function create():Void
 	{
-        FlxG.mouse.useSystemCursor = true;
+#if !mobile
+		FlxG.mouse.useSystemCursor = true;
+#end
 
         labelStart1 = new FlxText(10, 10, 0, "Shadow is coming! Space cows are the only salvation.", 16);
         labelStart1.color = 0xA0A0A0;
@@ -64,7 +66,11 @@ class MenuState extends FlxState
 	{
 		super.update(elapsed);
 
+#if mobile
+        if (FlxG.touches.justReleased().length > 0)
+#else
         if (FlxG.mouse.justPressed)
+#end
         {
             FlxG.switchState(new PlayState());
         }

@@ -23,7 +23,9 @@ class WinState extends FlxState
 
 	override public function create():Void
 	{
-        FlxG.mouse.useSystemCursor = true;
+#if !mobile
+		FlxG.mouse.useSystemCursor = true;
+#end
 
         labelInfo = new FlxText(10, 70, 0, "You've made it in:", 16);
         labelInfo.x = (FlxG.width - labelInfo.fieldWidth) / 2;
@@ -121,7 +123,11 @@ class WinState extends FlxState
 	{
 		super.update(elapsed);
 
+#if mobile
+        var gonext = FlxG.touches.justReleased().length > 0;
+#else
         var gonext = FlxG.mouse.justPressed || FlxG.keys.justReleased.ENTER;
+#end
         if (gonext && pname != "")
         {
             FlxG.sound.load("assets/sounds/click.wav").play();

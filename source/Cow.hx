@@ -18,11 +18,11 @@ class Cow extends FlxSprite
         var rand = random.int(0, 99);
 
         if (rand < 33)
-            loadGraphic(AssetPaths.cow01__png, true, 6, 4);
+            loadGraphic("assets/images/cow01.png", true, 6, 4);
         else if (rand < 66)
-            loadGraphic(AssetPaths.cow02__png, true, 6, 4);
+            loadGraphic("assets/images/cow02.png", true, 6, 4);
         else
-            loadGraphic(AssetPaths.cow03__png, true, 6, 4);
+            loadGraphic("assets/images/cow03.png", true, 6, 4);
 
         animation.add("idle", [0, 1, 2], 1, true);
         animation.play("idle", false, false, -1);
