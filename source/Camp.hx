@@ -13,7 +13,7 @@ class Camp extends FlxSprite
     {
         super(X, Y);
         initTile();
-        scale.set(3, 3);
+        scale.set(Main.gscale, Main.gscale);
     }
 
     private function initTile(): Void

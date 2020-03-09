@@ -30,8 +30,9 @@ class PlayState extends FlxState
 #end
 		//FlxG.debugger.drawDebug = true;
 
-		labelSpice = new FlxText(15, 10, 0, "", 16);
-		labelTurn = new FlxText(510, 10, 0, "", 16);
+		labelSpice = new FlxText(15, 10, 0, "spice: 000", 16);
+		labelTurn = new FlxText(510, 10, 0, "months: 000", 16);
+		labelTurn.x = FlxG.width - labelTurn.fieldWidth - 10;
 
 		cowSound = FlxG.sound.load("assets/sounds/cow.wav");
 		campSound = FlxG.sound.load("assets/sounds/camp.wav");
@@ -84,13 +85,13 @@ class PlayState extends FlxState
 
 	public function showGameOver(): Void
 	{
-		showComplete("Game over!", "Dark times has come");
+		showComplete("Game over", "Dark times has come!");
 		FlxG.sound.load("assets/sounds/gameover.wav").play();
 	}
 
 	public function showGameWin(): Void
 	{
-		showComplete("You win!", "Praise the sun");
+		showComplete("You win", "Praise the sun!");
 		FlxG.sound.load("assets/sounds/win.wav").play();
 	}
 

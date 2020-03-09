@@ -33,11 +33,17 @@ class MenuState extends FlxState
 
         labelLD42 = new FlxText(470, 415, 0, "#LudumDare 42", 16);
         labelLD42.color = 0x606060;
+        labelLD42.x = FlxG.width - labelLD42.fieldWidth - 15;
+        labelLD42.y = FlxG.height - 60;
+
         labelCredits = new FlxText(470, 435, 0, "@net3ton", 16);
         labelCredits.color = 0x606060;
+        labelCredits.x = labelLD42.x;
+        labelCredits.y = FlxG.height - 35;
 
         labelHint = new FlxText(10, 430, 0, "Click to start", 16);
         labelHint.x = (FlxG.width - labelHint.fieldWidth) / 2;
+        labelHint.y = FlxG.height * 0.5 + (20 * Main.gscale) * 3;
 
         map = new HexMap();
 		map.createPatch(new FlxVector(FlxG.width/2, FlxG.height/2), this);

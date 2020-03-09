@@ -9,7 +9,7 @@ class Cow extends FlxSprite
     {
         super(x, y);
         initTile();
-        scale.set(3, 3);
+        scale.set(Main.gscale, Main.gscale);
     }
 
     private function initTile()

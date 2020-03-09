@@ -23,14 +23,15 @@ class HexMap
     private var cursorLight: FlxSprite;
     private var cursorSkip: FlxSprite;
 
-    private var hexDeltas: Array<FlxVector> = [
-        new FlxVector(0, -63),
-        new FlxVector(60, -33),
-        new FlxVector(60, 30),
-        new FlxVector(0, 63),
-        new FlxVector(-60, -33),
-        new FlxVector(-60, 30),
+    public static var hexDeltas: Array<FlxVector> = [
+        new FlxVector(0, -21).scale(Main.gscale),
+        new FlxVector(20, -11).scale(Main.gscale),
+        new FlxVector(20, 10).scale(Main.gscale),
+        new FlxVector(0, 21).scale(Main.gscale),
+        new FlxVector(-20, -11).scale(Main.gscale),
+        new FlxVector(-20, 10).scale(Main.gscale),
     ];
+
 
     public function new()
 	{

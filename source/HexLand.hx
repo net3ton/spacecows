@@ -32,11 +32,11 @@ class HexLand extends FlxSprite
 
     private var cows: Array<Cow> = [];
     private var cowsPoses: Array<FlxVector> = [
-        new FlxVector(-5, -5),
-        new FlxVector(-18, -18),
-        new FlxVector(-18, 13),
-        new FlxVector(13, 13),
-        new FlxVector(13, -18),
+        new FlxVector(-2, -2),
+        new FlxVector(-6, -6),
+        new FlxVector(-6, 4),
+        new FlxVector(4, 4),
+        new FlxVector(4, -6),
     ];
     private var spice = 20;
 
@@ -54,7 +54,7 @@ class HexLand extends FlxSprite
             landType = type;
 
         initTile();
-        scale.set(3, 3);
+        scale.set(Main.gscale, Main.gscale);
 
         antialiasing = false;
         //pixelPerfectRender = true;
@@ -109,17 +109,17 @@ class HexLand extends FlxSprite
     public function getNeighbourPos(pos: LandNeighbour): FlxVector
     {
         if (pos == Top)
-            return new FlxVector(landPos.x, landPos.y - 63);
+            return landPos.addPoint(HexMap.hexDeltas[0]);
         if (pos == RightTop)
-            return new FlxVector(landPos.x + 60, landPos.y - 33);
+            return landPos.addPoint(HexMap.hexDeltas[1]);
         if (pos == RightBottom)
-            return new FlxVector(landPos.x + 60, landPos.y + 30);
+            return landPos.addPoint(HexMap.hexDeltas[2]);
         if (pos == Bottom)
-            return new FlxVector(landPos.x, landPos.y + 63);
+            return landPos.addPoint(HexMap.hexDeltas[3]);
         if (pos == LeftBottom)
-            return new FlxVector(landPos.x - 60, landPos.y + 30);
+            return landPos.addPoint(HexMap.hexDeltas[5]);
         if (pos == LeftTop)
-            return new FlxVector(landPos.x - 60, landPos.y - 33);
+            return landPos.addPoint(HexMap.hexDeltas[4]);
 
         return new FlxVector(landPos.x, landPos.y);
     }
@@ -203,7 +203,7 @@ class HexLand extends FlxSprite
         if (isCowsFull())
             return null;
 
-        var posOffset = cowsPoses[cows.length];
+        var posOffset = cowsPoses[cows.length].scaleNew(Main.gscale);
         var cow = Cow.create(landPos.x + posOffset.x, landPos.y + posOffset.y);
         cows.push(cow);
 
