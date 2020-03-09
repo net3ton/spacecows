@@ -24,8 +24,7 @@ class LeadersState extends FlxState
 
 	override public function create()
 	{
-        labelTitle = new FlxText(10, 20, 0, "Leaders", 18);
-        labelTitle.x = (FlxG.width - labelTitle.fieldWidth) / 2;
+        labelTitle = new GameLabel(10, 20, "Leaders").enlarge().hcenter();
         labelTitle.color = 0xFFFFFF;
         add(labelTitle);
 
@@ -35,9 +34,9 @@ class LeadersState extends FlxState
             var ypos = 60 + i * (FlxG.height - 100)/linesCount;
             var color = (i % 2) == 1 ? 0x606060 : 0xA0A0A0;
 
-            line.pos = new FlxText(150, ypos, 0, "", 16);
-            line.name = new FlxText(200, ypos, 0, "", 16);
-            line.score = new FlxText(450, ypos, 0, "", 16);
+            line.pos = new GameLabel(150, ypos, "");
+            line.name = new GameLabel(200, ypos, "");
+            line.score = new GameLabel(450, ypos, "");
             lines.push(line);
 
             updateLineColor(line, color);
@@ -47,8 +46,7 @@ class LeadersState extends FlxState
             add(line.score);
         }
 
-        var labelNext = new FlxText(10, 445, 0, "Click / Press Enter to restart", 16);
-        labelNext.x = (FlxG.width - labelNext.fieldWidth) / 2;
+        var labelNext = new GameLabel(10, 445, "Click / Press Enter to restart").hcenter().vpos(3);
         add(labelNext);
 
         leaders.onUpdate = updateLeaderboard;

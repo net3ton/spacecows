@@ -12,8 +12,8 @@ class PlayState extends FlxState
 	private var labelSpice: FlxText;
 	private var labelTurn: FlxText;
 
-	private var labelComplete: FlxText;
-	private var labelCompleteText: FlxText;
+	private var labelComplete: GameLabel;
+	private var labelCompleteText: GameLabel;
 
 	private var cowSound: FlxSound;
 	private var campSound: FlxSound;
@@ -30,8 +30,8 @@ class PlayState extends FlxState
 #end
 		//FlxG.debugger.drawDebug = true;
 
-		labelSpice = new FlxText(15, 10, 0, "spice: 000", 16);
-		labelTurn = new FlxText(510, 10, 0, "months: 000", 16);
+		labelSpice = new GameLabel(15, 10, "spice: 000");
+		labelTurn = new GameLabel(510, 10, "months: 000");
 		labelTurn.x = FlxG.width - labelTurn.fieldWidth - 10;
 
 		cowSound = FlxG.sound.load("assets/sounds/cow.wav");
@@ -59,12 +59,12 @@ class PlayState extends FlxState
 
 	private function initComplete(): Void
 	{
-		labelComplete  = new FlxText(0, 80, 0, "", 16);
+		labelComplete = new GameLabel(0, 80, "").hcenter();
 		labelComplete.setBorderStyle(flixel.text.FlxTextBorderStyle.OUTLINE, FlxColor.BLACK, 3, 1);
 		labelComplete.visible = false;
 		add(labelComplete);
 
-		labelCompleteText = new FlxText(0, 110, 0, "", 16);
+		labelCompleteText = new GameLabel(0, 110, "").hcenter();
 		labelCompleteText.setBorderStyle(flixel.text.FlxTextBorderStyle.OUTLINE, FlxColor.BLACK, 3, 1);
 		labelCompleteText.visible = false;
 		add(labelCompleteText);
@@ -75,11 +75,11 @@ class PlayState extends FlxState
 		initComplete();
 
 		labelComplete.text = title;
-		labelComplete.x = (FlxG.width - labelComplete.fieldWidth) / 2;
+		labelComplete.hcenter();
 		labelComplete.visible = true;
 
 		labelCompleteText.text = text;
-		labelCompleteText.x = (FlxG.width - labelCompleteText.fieldWidth) / 2;
+		labelCompleteText.hcenter();
 		labelCompleteText.visible = true;
 	}
 

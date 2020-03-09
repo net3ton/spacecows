@@ -2,14 +2,13 @@ package;
 
 import flixel.FlxG;
 import flixel.FlxState;
-import flixel.text.FlxText;
 
 class WinState extends FlxState
 {
-    private var labelInfo: FlxText;
-    private var labelScore: FlxText;
-    private var labelEnter: FlxText;
-    private var labelName: FlxText;
+    private var labelInfo: GameLabel;
+    private var labelScore: GameLabel;
+    private var labelEnter: GameLabel;
+    private var labelName: GameLabel;
 
     private var pname = "Player";
     private var pscore = 0;
@@ -27,17 +26,14 @@ class WinState extends FlxState
 		FlxG.mouse.useSystemCursor = true;
 #end
 
-        labelInfo = new FlxText(10, 70, 0, "You've made it in:", 16);
-        labelInfo.x = (FlxG.width - labelInfo.fieldWidth) / 2;
+        labelInfo = new GameLabel(10, 70, "You've made it in:").hcenter();
         labelInfo.color = 0xA0A0A0;
-        labelScore = new FlxText(10, 120, 0, "" + pscore + " months", 18);
-        labelScore.x = (FlxG.width - labelScore.fieldWidth) / 2;
+        labelScore = new GameLabel(10, 120, "" + pscore + " months").enlarge().hcenter();
         labelScore.color = 0xFFFFFF;
     
-        labelEnter = new FlxText(10, 180, 0, "Enter your name, brave cow master:", 16);
-        labelEnter.x = (FlxG.width - labelEnter.fieldWidth) / 2;
+        labelEnter = new GameLabel(10, 180, "Enter your name, brave cow master:").hcenter();
         labelEnter.color = 0xA0A0A0;
-        labelName = new FlxText(10, 230, 0, "", 18);
+        labelName = new GameLabel(10, 230, "").enlarge().hcenter();
         labelName.color = 0xFFFFFF;
 
         add(labelInfo);
@@ -45,8 +41,7 @@ class WinState extends FlxState
         add(labelEnter);
         add(labelName);
 
-        var labelNext = new FlxText(10, 445, 0, "Click / Press Enter to continue", 16);
-        labelNext.x = (FlxG.width - labelNext.fieldWidth) / 2;
+        var labelNext = new GameLabel(10, 445, "Click / Press Enter to continue").hcenter().vpos(3);
         add(labelNext);
 
         prepareCompo(pscore);
@@ -95,7 +90,7 @@ class WinState extends FlxState
     private function updateName()
     {
         labelName.text = pname;
-        labelName.x = (FlxG.width - labelName.fieldWidth) / 2;
+        labelName.hcenter();
         labelName.text += pnameEnter;
     }
 

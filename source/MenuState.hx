@@ -24,26 +24,24 @@ class MenuState extends FlxState
 		FlxG.mouse.useSystemCursor = true;
 #end
 
-        labelStart1 = new FlxText(10, 10, 0, "Shadow is coming! Space cows are the only salvation.", 16);
+        labelStart1 = new GameLabel(10, 10, "Shadow is coming! Space cows are the only salvation.");
         labelStart1.color = 0xA0A0A0;
-        labelStart2 = new FlxText(10, 40, 0, "Rise cows on land, place fire on sand.", 16);
+        labelStart2 = new GameLabel(10, 40, "Rise cows on land, place fire on sand.");
         labelStart2.color = 0x808080;
-        labelStart3 = new FlxText(10, 70, 0, "Get rid of Shadow!", 16);
+        labelStart3 = new GameLabel(10, 70, "Get rid of Shadow!");
         labelStart3.color = 0x606060;
 
-        labelLD42 = new FlxText(470, 415, 0, "#LudumDare 42", 16);
+        labelLD42 = new GameLabel(470, 415, "#LudumDare 42");
         labelLD42.color = 0x606060;
         labelLD42.x = FlxG.width - labelLD42.fieldWidth - 15;
         labelLD42.y = FlxG.height - 60;
 
-        labelCredits = new FlxText(470, 435, 0, "@net3ton", 16);
+        labelCredits = new GameLabel(470, 435, "@net3ton");
         labelCredits.color = 0x606060;
         labelCredits.x = labelLD42.x;
         labelCredits.y = FlxG.height - 35;
 
-        labelHint = new FlxText(10, 430, 0, "Click to start", 16);
-        labelHint.x = (FlxG.width - labelHint.fieldWidth) / 2;
-        labelHint.y = FlxG.height * 0.5 + (20 * Main.gscale) * 3;
+        labelHint = new GameLabel(10, 430, "Click to start").hcenter().vpos(3);
 
         map = new HexMap();
 		map.createPatch(new FlxVector(FlxG.width/2, FlxG.height/2), this);
