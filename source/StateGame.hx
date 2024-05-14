@@ -2,21 +2,21 @@ package;
 
 import flixel.FlxG;
 import flixel.FlxState;
-import flixel.math.FlxVector;
+import flixel.math.FlxPoint;
 import flixel.text.FlxText;
-import flixel.system.FlxSound;
+import flixel.sound.FlxSound;
 import flixel.util.FlxColor;
 
-class PlayState extends FlxState
+class StateGame extends FlxState
 {
 	private var labelSpice: FlxText;
 	private var labelTurn: FlxText;
 
-	private var labelComplete: GameLabel;
-	private var labelCompleteText: GameLabel;
+	private var labelComplete: TextLabel;
+	private var labelCompleteText: TextLabel;
 
 	private var cowSound: FlxSound;
-	private var campSound: FlxSound;
+	private var fireSound: FlxSound;
 	private var noneSound: FlxSound;
 
 	private var map: HexMap;
@@ -30,19 +30,19 @@ class PlayState extends FlxState
 #end
 		//FlxG.debugger.drawDebug = true;
 
-		labelSpice = new GameLabel(15, 10, "spice: 000");
-		labelTurn = new GameLabel(510, 10, "months: 000");
+		labelSpice = new TextLabel(15, 10, "spice: 000");
+		labelTurn = new TextLabel(510, 10, "months: 000");
 		labelTurn.x = FlxG.width - labelTurn.fieldWidth - 10;
 
 		cowSound = FlxG.sound.load("assets/sounds/cow.wav");
-		campSound = FlxG.sound.load("assets/sounds/camp.wav");
+		fireSound = FlxG.sound.load("assets/sounds/fire.wav");
 		noneSound = FlxG.sound.load("assets/sounds/none.wav");
 
 		add(labelSpice);
 		add(labelTurn);
 		
 		map = new HexMap();
-		map.createMap(new FlxVector(FlxG.width/2, FlxG.height/2), this);
+		map.createMap(new FlxPoint(FlxG.width/2, FlxG.height/2), this);
 	
 		initHints();
 		updateLabels();
@@ -59,12 +59,12 @@ class PlayState extends FlxState
 
 	private function initComplete(): Void
 	{
-		labelComplete = new GameLabel(0, 80, "").hcenter();
+		labelComplete = new TextLabel(0, 80, "").hcenter();
 		labelComplete.setBorderStyle(flixel.text.FlxTextBorderStyle.OUTLINE, FlxColor.BLACK, 3, 1);
 		labelComplete.visible = false;
 		add(labelComplete);
 
-		labelCompleteText = new GameLabel(0, 110, "").hcenter();
+		labelCompleteText = new TextLabel(0, 110, "").hcenter();
 		labelCompleteText.setBorderStyle(flixel.text.FlxTextBorderStyle.OUTLINE, FlxColor.BLACK, 3, 1);
 		labelCompleteText.visible = false;
 		add(labelCompleteText);
@@ -117,7 +117,7 @@ class PlayState extends FlxState
 		return hints[0];
 	}
 
-	public function addHint(x: Float, y: Float, text: String): Void
+	public function showHint(x: Float, y: Float, text: String): Void
 	{
 		getFreeHint().setup(x, y, text);
 	}
@@ -133,9 +133,9 @@ class PlayState extends FlxState
 		cowSound.play();
 	}
 
-	public function playCamp(): Void
+	public function playFire(): Void
 	{
-		campSound.play();
+		fireSound.play();
 	}
 
 	public function playNone(): Void

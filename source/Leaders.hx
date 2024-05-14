@@ -56,12 +56,18 @@ class Leaders
         request.addParameter("score", "" + scores);
         request.addParameter("name", name);
         request.addHeader("Content-Type", "text/plain");
+        //request.addParameter("timeout", "2");
 
         request.onData = onResultData;
         request.onError = onResultError;
-        request.cnxTimeout = 1.0;
+        //request.cnxTimeout = 1;
 
         request.request();
+
+        //request.customRequest()
+        //var responseBytes = new haxe.io.BytesOutput();
+        //request.customRequest(false, responseBytes, null, "PUT");
+        //onResultData(responseBytes.getBytes().toString());
 #end
     }
 
@@ -71,12 +77,14 @@ class Leaders
 
     private function onResultData(data: String)
     {
+        trace(data);
         var board: LeadersData = Json.parse(data);
         onUpdate(board);
     }
 
     private function onResultError(message: String)
     {
+        trace(message);
         var board: LeadersData = { pos: -1, leaders: [], around: [] };
         onUpdate(board);
     }

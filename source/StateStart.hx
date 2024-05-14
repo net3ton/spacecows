@@ -3,10 +3,10 @@ package;
 import flixel.FlxG;
 import flixel.FlxState;
 import flixel.text.FlxText;
-import flixel.math.FlxVector;
+import flixel.math.FlxPoint;
 import flixel.math.FlxRandom;
 
-class MenuState extends FlxState
+class StateStart extends FlxState
 {
     private var labelStart1: FlxText;
     private var labelStart2: FlxText;
@@ -24,27 +24,27 @@ class MenuState extends FlxState
 		FlxG.mouse.useSystemCursor = true;
 #end
 
-        labelStart1 = new GameLabel(10, 10, "Shadow is coming! Space cows are the only salvation.");
+        labelStart1 = new TextLabel(10, 10, "Shadow is coming! Space cows are the only salvation.");
         labelStart1.color = 0xA0A0A0;
-        labelStart2 = new GameLabel(10, 40, "Rise cows on land, place fire on sand.");
+        labelStart2 = new TextLabel(10, 40, "Rise cows on land, place fire on sand.");
         labelStart2.color = 0x808080;
-        labelStart3 = new GameLabel(10, 70, "Get rid of Shadow!");
+        labelStart3 = new TextLabel(10, 70, "Get rid of Shadow!");
         labelStart3.color = 0x606060;
 
-        labelLD42 = new GameLabel(470, 415, "#LudumDare 42");
+        labelLD42 = new TextLabel(470, 415, "#LudumDare 42");
         labelLD42.color = 0x606060;
         labelLD42.x = FlxG.width - labelLD42.fieldWidth - 15;
         labelLD42.y = FlxG.height - 60;
 
-        labelCredits = new GameLabel(470, 435, "@net3ton");
+        labelCredits = new TextLabel(470, 435, "@net3ton");
         labelCredits.color = 0x606060;
         labelCredits.x = labelLD42.x;
         labelCredits.y = FlxG.height - 35;
 
-        labelHint = new GameLabel(10, 430, "Click to start").hcenter().vpos(3);
+        labelHint = new TextLabel(10, 430, "Click to start").hcenter().vpos(3);
 
         map = new HexMap();
-		map.createPatch(new FlxVector(FlxG.width/2, FlxG.height/2), this);
+		map.createPatch(new FlxPoint(FlxG.width/2, FlxG.height/2), this);
         map.expandMap(this);
 
         var random: FlxRandom = new FlxRandom();
@@ -76,7 +76,7 @@ class MenuState extends FlxState
         if (FlxG.mouse.justPressed)
 #end
         {
-            FlxG.switchState(new PlayState());
+            FlxG.switchState(new StateGame());
         }
 	}
 }

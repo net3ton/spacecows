@@ -2,7 +2,7 @@ package;
 
 import flixel.FlxSprite;
 import flixel.FlxState;
-import flixel.math.FlxVector;
+import flixel.math.FlxPoint;
 import flixel.math.FlxRandom;
 
 enum LandType 
@@ -12,7 +12,7 @@ enum LandType
 
     Sand;
     Field;
-    Sea;
+    Water;
 }
 
 enum LandNeighbour
@@ -28,25 +28,25 @@ enum LandNeighbour
 class HexLand extends FlxSprite
 {
     public var landType: LandType = Random;
-    public var landPos: FlxVector;
+    public var landPos: FlxPoint;
 
     private var cows: Array<Cow> = [];
-    private var cowsPoses: Array<FlxVector> = [
-        new FlxVector(-2, -2),
-        new FlxVector(-6, -6),
-        new FlxVector(-6, 4),
-        new FlxVector(4, 4),
-        new FlxVector(4, -6),
+    private var cowsPoses: Array<FlxPoint> = [
+        new FlxPoint(-2, -2),
+        new FlxPoint(-6, -6),
+        new FlxPoint(-6, 4),
+        new FlxPoint(4, 4),
+        new FlxPoint(4, -6),
     ];
     private var spice = 20;
 
-    private var camp: Camp;
+    private var bonfire: Bonfire;
     private var light = 0;
     private var locust = false;
 
-    public function new(X:Float, Y:Float, type: LandType)
+    public function new(x:Float, y:Float, type: LandType)
     {
-        super(X, Y);
+        super(x, y);
 
         if (type == Random)
             landType = getRandomType();
@@ -59,34 +59,39 @@ class HexLand extends FlxSprite
         antialiasing = false;
         //pixelPerfectRender = true;
 
-        landPos = new FlxVector(X, Y);
-        setPosition(X - width/2, Y - height/2);
+        landPos = new FlxPoint(x, y);
+        setPosition(x - width/2, y - height/2);
     }
 
-    private function initTile(): Void
+    private function initTile()
     {
+        var random: FlxRandom = new FlxRandom();
+
         if (landType == Base)
         {
-            loadGraphic("assets/images/hexbase.png", false);
+            loadGraphic("assets/images/hexbase.png", false, 32, 32);
             return;
         }
 
         if (landType == Sand)
         {
-            loadGraphic("assets/images/hex01.png", false);
+            loadGraphic("assets/images/hex01.png", true, 32, 32);
+            animation.frameIndex = random.int(0, animation.numFrames - 1);
+            flipX = random.int(0, 99) >= 50;
             return;
         }
 
         if (landType == Field)
         {
-            loadGraphic("assets/images/hex04.png", false);
+            loadGraphic("assets/images/hex04.png", true, 32, 32);
+            animation.frameIndex = random.int(0, animation.numFrames - 1);
+            flipX = random.int(0, 99) >= 50;
             return;
         }
 
-        if (landType == Sea)
+        if (landType == Water)
         {
             loadGraphic("assets/images/hex03.png", true, 32, 32);
-            //setFacingFlip(flixel.FlxObject.LEFT, false, false);
             animation.add("idle", [0, 1], 2, true);
             animation.play("idle");
             return;
@@ -101,27 +106,27 @@ class HexLand extends FlxSprite
         if (rand < 10)
             return Sand;
         if (rand < 20)
-            return Sea;
+            return Water;
 
         return Field;
     }
 
-    public function getNeighbourPos(pos: LandNeighbour): FlxVector
+    public function getNeighbourPos(pos: LandNeighbour): FlxPoint
     {
         if (pos == Top)
-            return landPos.addPoint(HexMap.hexDeltas[0]);
+            return landPos.addNew(HexMap.hexDeltas[0]);
         if (pos == RightTop)
-            return landPos.addPoint(HexMap.hexDeltas[1]);
+            return landPos.addNew(HexMap.hexDeltas[1]);
         if (pos == RightBottom)
-            return landPos.addPoint(HexMap.hexDeltas[2]);
+            return landPos.addNew(HexMap.hexDeltas[2]);
         if (pos == Bottom)
-            return landPos.addPoint(HexMap.hexDeltas[3]);
+            return landPos.addNew(HexMap.hexDeltas[3]);
         if (pos == LeftBottom)
-            return landPos.addPoint(HexMap.hexDeltas[5]);
+            return landPos.addNew(HexMap.hexDeltas[5]);
         if (pos == LeftTop)
-            return landPos.addPoint(HexMap.hexDeltas[4]);
+            return landPos.addNew(HexMap.hexDeltas[4]);
 
-        return new FlxVector(landPos.x, landPos.y);
+        return new FlxPoint(landPos.x, landPos.y);
     }
 
     public function harvest(): Int
@@ -145,7 +150,7 @@ class HexLand extends FlxSprite
         return res;
     }
 
-    public function setLocust(on: Bool): Void 
+    public function setLocust(on: Bool)
     {
         locust = on;
 
@@ -181,12 +186,12 @@ class HexLand extends FlxSprite
     {
         if (light > 0)
         {
-            camp.nextFrame();
+            bonfire.nextFrame();
             light -= 1;
             if (light <= 0)
             {
-                camp.kill();
-                camp = null;
+                bonfire.kill();
+                bonfire = null;
 
                 //landType = Sea;
                 //initTile();
@@ -198,7 +203,7 @@ class HexLand extends FlxSprite
         return -1;
     }
 
-    public function addCow(): Cow
+    public function createCow(): Cow
     {
         if (isCowsFull())
             return null;
@@ -215,21 +220,21 @@ class HexLand extends FlxSprite
         return cows.length >= cowsPoses.length;
     }
 
-    public function addLight(): Camp
+    public function createBonfire(): Bonfire
     {
-        if (camp == null)
+        if (bonfire == null)
         {
             light = 5;
-            camp = new Camp(landPos.x - 8, landPos.y - 8);
-            return camp;
+            bonfire = new Bonfire(landPos.x - 8, landPos.y - 8);
+            return bonfire;
         }
 
         return null;
     }
 
-    public function addFire(to: FlxState): HexLand
+    public function addBonfire(to: FlxState): HexLand
     {
-        var fire = addLight();
+        var fire = createBonfire();
         if (fire != null)
         {
             fire.animation.play("idle", false, false, -1);
@@ -243,7 +248,7 @@ class HexLand extends FlxSprite
     {
         for (i in 0...count)
         {
-            var cow = addCow();
+            var cow = createCow();
             if (cow != null)
                 to.add(cow);
         }

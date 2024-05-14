@@ -11,7 +11,7 @@ typedef BoardLine = {
     var score: FlxText;
 }
 
-class LeadersState extends FlxState
+class StateLeaders extends FlxState
 {
     private var leaders = new Leaders();
     private var lines: Array<BoardLine> = [];
@@ -24,7 +24,7 @@ class LeadersState extends FlxState
 
 	override public function create()
 	{
-        labelTitle = new GameLabel(10, 20, "Leaders").enlarge().hcenter();
+        labelTitle = new TextLabel(10, 20, "Leaders").enlarge().hcenter();
         labelTitle.color = 0xFFFFFF;
         add(labelTitle);
 
@@ -34,9 +34,9 @@ class LeadersState extends FlxState
             var ypos = 60 + i * (FlxG.height - 100)/linesCount;
             var color = (i % 2) == 1 ? 0x606060 : 0xA0A0A0;
 
-            line.pos = new GameLabel(150, ypos, "");
-            line.name = new GameLabel(200, ypos, "");
-            line.score = new GameLabel(450, ypos, "");
+            line.pos = new TextLabel(150, ypos, "");
+            line.name = new TextLabel(200, ypos, "");
+            line.score = new TextLabel(450, ypos, "");
             lines.push(line);
 
             updateLineColor(line, color);
@@ -46,7 +46,7 @@ class LeadersState extends FlxState
             add(line.score);
         }
 
-        var labelNext = new GameLabel(10, 445, "Click / Press Enter to restart").hcenter().vpos(3);
+        var labelNext = new TextLabel(10, 445, "Click / Press Enter to restart").hcenter().vpos(3);
         add(labelNext);
 
         leaders.onUpdate = updateLeaderboard;
@@ -55,7 +55,7 @@ class LeadersState extends FlxState
         super.create();
 	}
 
-    public function init(name: String, score: Int): LeadersState
+    public function init(name: String, score: Int): StateLeaders
     {
         pname = name;
         pscore = score;
@@ -130,7 +130,7 @@ class LeadersState extends FlxState
 #end
         {
             FlxG.sound.load("assets/sounds/click.wav").play();
-            FlxG.switchState(new MenuState());
+            FlxG.switchState(new StateStart());
         }
 	}
 }

@@ -3,12 +3,12 @@ package;
 import flixel.FlxG;
 import flixel.FlxState;
 
-class WinState extends FlxState
+class StateWin extends FlxState
 {
-    private var labelInfo: GameLabel;
-    private var labelScore: GameLabel;
-    private var labelEnter: GameLabel;
-    private var labelName: GameLabel;
+    private var labelInfo: TextLabel;
+    private var labelScore: TextLabel;
+    private var labelEnter: TextLabel;
+    private var labelName: TextLabel;
 
     private var pname = "Player";
     private var pscore = 0;
@@ -26,14 +26,14 @@ class WinState extends FlxState
 		FlxG.mouse.useSystemCursor = true;
 #end
 
-        labelInfo = new GameLabel(10, 70, "You've made it in:").hcenter();
+        labelInfo = new TextLabel(10, 70, "You've made it in:").hcenter();
         labelInfo.color = 0xA0A0A0;
-        labelScore = new GameLabel(10, 120, "" + pscore + " months").enlarge().hcenter();
+        labelScore = new TextLabel(10, 120, "" + pscore + " months").enlarge().hcenter();
         labelScore.color = 0xFFFFFF;
     
-        labelEnter = new GameLabel(10, 180, "Enter your name, brave cow master:").hcenter();
+        labelEnter = new TextLabel(10, 180, "Enter your name, brave cow master:").hcenter();
         labelEnter.color = 0xA0A0A0;
-        labelName = new GameLabel(10, 230, "").enlarge().hcenter();
+        labelName = new TextLabel(10, 230, "").enlarge().hcenter();
         labelName.color = 0xFFFFFF;
 
         add(labelInfo);
@@ -41,7 +41,7 @@ class WinState extends FlxState
         add(labelEnter);
         add(labelName);
 
-        var labelNext = new GameLabel(10, 445, "Click / Press Enter to continue").hcenter().vpos(3);
+        var labelNext = new TextLabel(10, 445, "Click / Press Enter to continue").hcenter().vpos(3);
         add(labelNext);
 
         prepareCompo(pscore);
@@ -64,13 +64,13 @@ class WinState extends FlxState
         add(land);
         land.addCows(this, cowsTop);
 
-        var land21 = makeNeighbour(land, Sea, RightBottom);
+        var land21 = makeNeighbour(land, Water, RightBottom);
         var land22 = makeNeighbour(land21, Field, RightTop).addCows(this, cowsTwo1);
-        makeNeighbour(land22, Sand, RightBottom).addFire(this);
+        makeNeighbour(land22, Sand, RightBottom).addBonfire(this);
 
-        var land11 = makeNeighbour(land, Sea, LeftBottom);
+        var land11 = makeNeighbour(land, Water, LeftBottom);
         var land12 = makeNeighbour(land11, Field, LeftTop).addCows(this, cowsTwo2);
-        makeNeighbour(land12, Sand, LeftBottom).addFire(this);
+        makeNeighbour(land12, Sand, LeftBottom).addBonfire(this);
     }
 
     private function makeNeighbour(hex: HexLand, type: HexLand.LandType, dir: HexLand.LandNeighbour): HexLand
@@ -81,7 +81,7 @@ class WinState extends FlxState
         return land;
     }
 
-    public function setScore(score: Int): WinState
+    public function setScore(score: Int): StateWin
     {
         pscore = score;
         return this;
@@ -126,7 +126,7 @@ class WinState extends FlxState
         if (gonext && pname != "")
         {
             FlxG.sound.load("assets/sounds/click.wav").play();
-            FlxG.switchState(new LeadersState().init(pname, pscore));
+            FlxG.switchState(new StateLeaders().init(pname, pscore));
         }
 
         pnameEnterTimer -= elapsed;

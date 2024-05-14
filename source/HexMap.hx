@@ -3,7 +3,6 @@ package;
 import flixel.FlxG;
 import flixel.FlxState;
 import flixel.FlxSprite;
-import flixel.math.FlxVector;
 import flixel.math.FlxPoint;
 import flixel.math.FlxRandom;
 
@@ -17,19 +16,19 @@ class HexMap
 
     private var lands: Array<HexLand> = [];
     private var locusts: Array<HexLand> = [];
-    private var level: PlayState;
+    private var level: StateGame;
 
     private var cursorCow: FlxSprite;
     private var cursorLight: FlxSprite;
     private var cursorSkip: FlxSprite;
 
-    public static var hexDeltas: Array<FlxVector> = [
-        new FlxVector(0, -21).scale(Main.gscale),
-        new FlxVector(20, -11).scale(Main.gscale),
-        new FlxVector(20, 10).scale(Main.gscale),
-        new FlxVector(0, 21).scale(Main.gscale),
-        new FlxVector(-20, -11).scale(Main.gscale),
-        new FlxVector(-20, 10).scale(Main.gscale),
+    public static var hexDeltas: Array<FlxPoint> = [
+        new FlxPoint(0, -22).scale(Main.gscale),
+        new FlxPoint(20, -11).scale(Main.gscale),
+        new FlxPoint(20, 11).scale(Main.gscale),
+        new FlxPoint(0, 22).scale(Main.gscale),
+        new FlxPoint(-20, -11).scale(Main.gscale),
+        new FlxPoint(-20, 11).scale(Main.gscale)
     ];
 
 
@@ -48,7 +47,7 @@ class HexMap
         return lands;
     }
 
-    public function createPatch(pos: FlxVector, to: FlxState): Void
+    public function createPatch(pos: FlxPoint, to: FlxState)
 	{
         for (delta in hexDeltas)
         {
@@ -56,7 +55,7 @@ class HexMap
         }
 	}
 
-    public function createMap(pos: FlxVector, to: PlayState): Void
+    public function createMap(pos: FlxPoint, to: StateGame): Void
     {
         level = to;
 
@@ -68,6 +67,8 @@ class HexMap
         expandMap(level);
         expandMap(level);
 
+        trace("hex count:" + lands.length);
+
         /// init enemy
         var random: FlxRandom = new FlxRandom();
         var locust: HexLand = null;
@@ -75,7 +76,7 @@ class HexMap
         {
             var rand = random.int(0, 17);
             locust = lands[lands.length - rand - 1];
-            if (locust.landType == Sea)
+            if (locust.landType == Water)
                 locust = null;
         }
 
@@ -103,7 +104,7 @@ class HexMap
 
     private function getLand(x: Float, y: Float): HexLand
     {
-        return getLandByPos(x, y, 5);
+        return getLandByPos(x, y, 10);
     }
 
     private function createIfNeeded(x: Float, y: Float, to: FlxState): Void
@@ -111,6 +112,7 @@ class HexMap
         if (getLand(x, y) != null)
             return;
 
+        //trace("hex in:" + x + ", " + y);
         var hex = new HexLand(x, y, Random);
         lands.push(hex);
 		to.add(hex);
@@ -146,7 +148,7 @@ class HexMap
             {
                 if (!sideHex.isLocust() && next.indexOf(sideHex) < 0)
                 {
-                    if (sideHex.landType == Sea)
+                    if (sideHex.landType == Water)
                         continue;
 
                     var sideRound = getNearbyHexes(sideHex);
@@ -207,7 +209,7 @@ class HexMap
                 var count = land.harvest();
                 if (count > 0)
                 {
-                    level.addHint(land.landPos.x, land.landPos.y - 15, "+" + count);
+                    level.showHint(land.landPos.x, land.landPos.y - 15, "+" + count);
                     spiceCount += count;
                 }
             }
@@ -238,7 +240,7 @@ class HexMap
 
     private function addCow(hex: HexLand): Void
     {
-        var cow = hex.addCow();
+        var cow = hex.createCow();
         if (cow != null)
         {
             level.add(cow);
@@ -247,10 +249,10 @@ class HexMap
 
     private function addLight(hex: HexLand): Void
     {
-        var camp = hex.addLight();
-        if (camp!= null)
+        var fire = hex.createBonfire();
+        if (fire != null)
         {
-            level.add(camp);
+            level.add(fire);
 
             var nears = getNearbyHexes(hex);
             for (nearHex in nears)
@@ -274,13 +276,13 @@ class HexMap
         {
             if (gameOver)
             {
-                FlxG.switchState(new MenuState());
+                FlxG.switchState(new StateStart());
                 return;
             }
 
             if (gameWin)
             {
-                FlxG.switchState(new WinState().setScore(turn));
+                FlxG.switchState(new StateWin().setScore(turn));
                 return;
             }
 
@@ -299,11 +301,11 @@ class HexMap
                         addCow(land);
                         level.playCow();
                     }
-                    else if (land.landType == Sand && !land.isLight() && spiceCount >= Camp.PRICE)
+                    else if (land.landType == Sand && !land.isLight() && spiceCount >= Bonfire.PRICE)
                     {
-                        spiceCount -= Camp.PRICE;
+                        spiceCount -= Bonfire.PRICE;
                         addLight(land);
-                        level.playCamp();
+                        level.playFire();
                     }
                     else 
                     {
@@ -340,7 +342,7 @@ class HexMap
             {
                 FlxG.mouse.load(cursorCow.pixels, 4.0, -12, -8);
             }
-            else if (land.landType == Sand && spiceCount >= Camp.PRICE && !land.isLight() && !land.isLocust())
+            else if (land.landType == Sand && spiceCount >= Bonfire.PRICE && !land.isLight() && !land.isLocust())
             {
                 FlxG.mouse.load(cursorLight.pixels, 3.0, -18, -15);
             }
