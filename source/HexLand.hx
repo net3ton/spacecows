@@ -1,5 +1,7 @@
 package;
 
+//import lime.tools.Platform;
+//import openfl.utils.IAssetCache;
 import flixel.FlxSprite;
 import flixel.FlxState;
 import flixel.math.FlxPoint;
@@ -13,6 +15,7 @@ enum LandType
     Sand;
     Field;
     Water;
+    Stone;
 }
 
 enum LandNeighbour
@@ -30,30 +33,21 @@ class HexLand extends FlxSprite
     public var landType: LandType = Random;
     public var landPos: FlxPoint;
 
-    private var cows: Array<Cow> = [];
-    private var cowsPoses: Array<FlxPoint> = [
-        new FlxPoint(-2, -2),
-        new FlxPoint(-6, -6),
-        new FlxPoint(-6, 4),
-        new FlxPoint(4, 4),
-        new FlxPoint(4, -6),
-    ];
+    // hex resources
     private var spice = 20;
+    private var stone = 5;
 
+    private var cows: Array<Cow> = [];
+    private var raft: Raft;
     private var bonfire: Bonfire;
     private var light = 0;
     private var locust = false;
 
-    public function new(x:Float, y:Float, type: LandType)
+    public function new(x: Float, y: Float, type: LandType)
     {
         super(x, y);
 
-        if (type == Random)
-            landType = getRandomType();
-        else
-            landType = type;
-
-        initTile();
+        initTile(type);
         scale.set(Main.gscale, Main.gscale);
 
         antialiasing = false;
@@ -63,39 +57,50 @@ class HexLand extends FlxSprite
         setPosition(x - width/2, y - height/2);
     }
 
-    private function initTile()
+    private function initTile(type: LandType)
     {
-        var random: FlxRandom = new FlxRandom();
+        removeAllCows();
+
+        if (type == Random)
+            landType = getRandomType();
+        else
+            landType = type;
 
         if (landType == Base)
         {
             loadGraphic("assets/images/hexbase.png", false, 32, 32);
-            return;
         }
-
-        if (landType == Sand)
+        else if (landType == Sand)
         {
             loadGraphic("assets/images/hex01.png", true, 32, 32);
+            var random: FlxRandom = new FlxRandom();
             animation.frameIndex = random.int(0, animation.numFrames - 1);
             flipX = random.int(0, 99) >= 50;
-            return;
         }
-
-        if (landType == Field)
+        else if (landType == Field)
         {
             loadGraphic("assets/images/hex04.png", true, 32, 32);
+            var random: FlxRandom = new FlxRandom();
             animation.frameIndex = random.int(0, animation.numFrames - 1);
             flipX = random.int(0, 99) >= 50;
-            return;
         }
-
-        if (landType == Water)
+        else if (landType == Water)
         {
             loadGraphic("assets/images/hex03.png", true, 32, 32);
             animation.add("idle", [0, 1], 2, true);
             animation.play("idle");
-            return;
         }
+        else if (landType == Stone)
+        {
+            loadGraphic("assets/images/hex05.png", false, 32, 32);
+        }
+    }
+
+    private function removeAllCows()
+    {
+        for (cow in cows)
+            cow.kill();
+        cows = [];
     }
 
     private function getRandomType(): LandType
@@ -107,6 +112,8 @@ class HexLand extends FlxSprite
             return Sand;
         if (rand < 20)
             return Water;
+        if (rand < 30)
+            return Stone;
 
         return Field;
     }
@@ -129,25 +136,46 @@ class HexLand extends FlxSprite
         return new FlxPoint(landPos.x, landPos.y);
     }
 
-    public function harvest(): Int
+    public function harvestSpice(): Int
     {
-        var res = cows.length;
-        if (res > spice)
-            res = spice;
-
-        spice -= res;
-
-        if (spice <= 0)
+        if (landType == Field && cows.length > 0)
         {
-            landType = Sand;
-            initTile();
+            var count = cows.length;
+            if (count > spice)
+                count = spice;
 
-            for (cow in cows)
-                cow.kill();
-            cows = [];
+            spice -= count;
+
+            if (spice <= 0)
+            {
+                initTile(Sand);
+            }
+
+            return count;
         }
 
-        return res;
+        return 0;
+    }
+
+    public function harvestStone(): Int
+    {
+        if (landType == Stone && cows.length > 0)
+        {
+            var count = cows.length;
+            if (count > stone)
+                count = stone;
+
+            stone -= count;
+
+            if (stone <= 0)
+            {
+                initTile(Field);
+            }
+
+            return count;
+        }
+        
+        return 0;
     }
 
     public function setLocust(on: Bool)
@@ -170,6 +198,11 @@ class HexLand extends FlxSprite
         return light > 0;
     }
 
+    public function isRaft(): Bool
+    {
+        return raft != null;
+    }
+
     public function hitCowByLocust(): Cow
     {
         if (cows.length > 0)
@@ -182,7 +215,7 @@ class HexLand extends FlxSprite
         return null;
     }
 
-    public function hitLight(): Int
+    public function decreaseLight(): Int
     {
         if (light > 0)
         {
@@ -193,8 +226,7 @@ class HexLand extends FlxSprite
                 bonfire.kill();
                 bonfire = null;
 
-                //landType = Sea;
-                //initTile();
+                //initTile(Sea);
             }
 
             return light;
@@ -208,16 +240,28 @@ class HexLand extends FlxSprite
         if (isCowsFull())
             return null;
 
-        var posOffset = cowsPoses[cows.length].scaleNew(Main.gscale);
-        var cow = Cow.create(landPos.x + posOffset.x, landPos.y + posOffset.y);
-        cows.push(cow);
+        var nextCowInd = cows.length;
+        var cow = null;
+
+        if (landType == Field)
+            cow = Cow.create(landPos.x, landPos.y, Normal, nextCowInd);
+        else if (landType == Stone)
+            cow = Cow.create(landPos.x, landPos.y, Stoned, nextCowInd);
+
+        if (cow != null)
+            cows.push(cow);
 
         return cow;
     }
 
     public function isCowsFull(): Bool
     {
-        return cows.length >= cowsPoses.length;
+        if (landType == Field)
+            return cows.length >= Cow.MAX_NORMAL;
+        if (landType == Stone)
+            return cows.length >= Cow.MAX_STONED;
+
+        return true;
     }
 
     public function createBonfire(): Bonfire
@@ -237,11 +281,22 @@ class HexLand extends FlxSprite
         var fire = createBonfire();
         if (fire != null)
         {
-            fire.animation.play("idle", false, false, -1);
+            fire.playIdleAnim();
             to.add(fire);
         }
 
         return this;
+    }
+
+    public function createRaft(): Raft
+    {
+        if (raft == null)
+        {
+            raft = new Raft(landPos.x - 8, landPos.y - 8);
+            return raft;
+        }
+
+        return null;
     }
 
     public function addCows(to: FlxState, count: Int): HexLand

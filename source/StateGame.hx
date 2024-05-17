@@ -10,6 +10,7 @@ import flixel.util.FlxColor;
 class StateGame extends FlxState
 {
 	private var labelSpice: FlxText;
+	private var labelStone: FlxText;
 	private var labelTurn: FlxText;
 
 	private var labelComplete: TextLabel;
@@ -23,14 +24,15 @@ class StateGame extends FlxState
 	private var hints: Array<TextHint> = [];
 	private var hintsMaxCount = 10;
 
-	override public function create():Void
+	override public function create()
 	{
 #if !mobile
 		FlxG.mouse.useSystemCursor = true;
 #end
 		//FlxG.debugger.drawDebug = true;
 
-		labelSpice = new TextLabel(15, 10, "spice: 000");
+		labelSpice = new TextLabel(10, 10, "spice: 000");
+		labelStone = new TextLabel(110, 10, "stone: 000");
 		labelTurn = new TextLabel(510, 10, "months: 000");
 		labelTurn.x = FlxG.width - labelTurn.fieldWidth - 10;
 
@@ -39,10 +41,11 @@ class StateGame extends FlxState
 		noneSound = FlxG.sound.load("assets/sounds/none.wav");
 
 		add(labelSpice);
+		add(labelStone);
 		add(labelTurn);
 		
 		map = new HexMap();
-		map.createMap(new FlxPoint(FlxG.width/2, FlxG.height/2), this);
+		map.createMap(FlxG.width/2, FlxG.height/2, this);
 	
 		initHints();
 		updateLabels();
@@ -51,13 +54,14 @@ class StateGame extends FlxState
 		super.create();
 	}
 
-	public function updateLabels(): Void
+	public function updateLabels()
 	{
 		labelSpice.text = "spice: " + map.spiceCount;
+		labelStone.text = "stone: " + map.stoneCount;
 		labelTurn.text = "months: " + map.turn;
 	}
 
-	private function initComplete(): Void
+	private function initComplete()
 	{
 		labelComplete = new TextLabel(0, 80, "").hcenter();
 		labelComplete.setBorderStyle(flixel.text.FlxTextBorderStyle.OUTLINE, FlxColor.BLACK, 3, 1);
@@ -70,7 +74,7 @@ class StateGame extends FlxState
 		add(labelCompleteText);
 	}
 
-	private function showComplete(title: String, text: String): Void
+	private function showComplete(title: String, text: String)
 	{
 		initComplete();
 
@@ -83,19 +87,19 @@ class StateGame extends FlxState
 		labelCompleteText.visible = true;
 	}
 
-	public function showGameOver(): Void
+	public function showGameOver()
 	{
 		showComplete("Game over", "Dark times has come!");
 		FlxG.sound.load("assets/sounds/gameover.wav").play();
 	}
 
-	public function showGameWin(): Void
+	public function showGameWin()
 	{
 		showComplete("You win", "Praise the sun!");
 		FlxG.sound.load("assets/sounds/win.wav").play();
 	}
 
-	private function initHints(): Void
+	private function initHints()
 	{
 		for (i in 0...hintsMaxCount)
 		{
@@ -117,33 +121,33 @@ class StateGame extends FlxState
 		return hints[0];
 	}
 
-	public function showHint(x: Float, y: Float, text: String): Void
+	public function showHint(x: Float, y: Float, text: String)
 	{
 		getFreeHint().setup(x, y, text);
 	}
 
-	public function clearHints(): Void
+	public function clearHints()
 	{
 		for (hint in hints)
 			hint.visible = false;
 	}
 
-	public function playCow(): Void
+	public function playCow()
 	{
 		cowSound.play();
 	}
 
-	public function playFire(): Void
+	public function playFire()
 	{
 		fireSound.play();
 	}
 
-	public function playNone(): Void
+	public function playNone()
 	{
 		noneSound.play();
 	}
 
-	override public function update(elapsed:Float):Void
+	override public function update(elapsed: Float)
 	{
 		super.update(elapsed);
 		map.update(elapsed);

@@ -10,6 +10,7 @@ class HexMap
 {
     public var turn = 0;
     public var spiceCount = 0;
+    public var stoneCount = 0;
 
     private var gameOver = false;
     private var gameWin = false;
@@ -19,7 +20,8 @@ class HexMap
     private var level: StateGame;
 
     private var cursorCow: FlxSprite;
-    private var cursorLight: FlxSprite;
+    private var cursorStone: FlxSprite;
+    private var cursorFire: FlxSprite;
     private var cursorSkip: FlxSprite;
 
     public static var hexDeltas: Array<FlxPoint> = [
@@ -36,8 +38,10 @@ class HexMap
 	{
         cursorCow = new FlxSprite();
         cursorCow.loadGraphic("assets/images/cursor-cow.png");
-        cursorLight = new FlxSprite();
-        cursorLight.loadGraphic("assets/images/cursor-camp.png");
+        cursorStone = new FlxSprite();
+        cursorStone.loadGraphic("assets/images/cursor-stone.png");
+        cursorFire = new FlxSprite();
+        cursorFire.loadGraphic("assets/images/cursor-fire.png");
         cursorSkip = new FlxSprite();
         cursorSkip.loadGraphic("assets/images/cursor-skip.png");
     }
@@ -47,27 +51,33 @@ class HexMap
         return lands;
     }
 
-    public function createPatch(pos: FlxPoint, to: FlxState)
+    public function createLandsAround(x: Float, y: Float, to: FlxState)
 	{
         for (delta in hexDeltas)
         {
-            createIfNeeded(pos.x + delta.x, pos.y + delta.y, to);
+            createLandIfNeeded(x + delta.x, y + delta.y, to);
         }
 	}
 
-    public function createMap(pos: FlxPoint, to: StateGame): Void
+    public function expandMap(to: FlxState)
+    {
+        for (hex in lands.copy())
+            createLandsAround(hex.landPos.x, hex.landPos.y, to);
+    }
+
+    public function createMap(x: Float, y: Float, to: StateGame)
     {
         level = to;
 
-        var baseHex = new HexLand(pos.x, pos.y, Base);
+        var baseHex = new HexLand(x, y, Base);
         lands.push(baseHex);
 		level.add(baseHex);
 
-        createPatch(pos, level);
+        createLandsAround(x, y, level);
         expandMap(level);
         expandMap(level);
 
-        trace("hex count:" + lands.length);
+        //trace("hex count:" + lands.length);
 
         /// init enemy
         var random: FlxRandom = new FlxRandom();
@@ -82,12 +92,6 @@ class HexMap
 
         locust.setLocust(true);
         locusts.push(locust);
-    }
-
-    public function expandMap(to: FlxState): Void
-    {
-        for (hex in lands.copy())
-            createPatch(hex.landPos, to);
     }
 
     private function getLandByPos(x: Float, y: Float, dist: Float): HexLand
@@ -107,15 +111,16 @@ class HexMap
         return getLandByPos(x, y, 10);
     }
 
-    private function createIfNeeded(x: Float, y: Float, to: FlxState): Void
+    private function createLandIfNeeded(x: Float, y: Float, to: FlxState)
     {
-        if (getLand(x, y) != null)
-            return;
+        if (getLand(x, y) == null)
+        {
+            //trace("hex in:" + x + ", " + y);
+            var hex = new HexLand(x, y, Random);
 
-        //trace("hex in:" + x + ", " + y);
-        var hex = new HexLand(x, y, Random);
-        lands.push(hex);
-		to.add(hex);
+            lands.push(hex);
+            to.add(hex);
+        }
     }
 
     private function hittestLand(pos: FlxPoint): HexLand
@@ -137,7 +142,7 @@ class HexMap
         return nearby;
     }
 
-    private function spreadLocust(): Void
+    private function spreadLocust()
     {
         var next: Array<HexLand> = [];
 
@@ -179,7 +184,7 @@ class HexMap
         locusts.push(locust);
     }
 
-    private function processLocust(): Void
+    private function processLocust()
     {
         for (hex in locusts)
         {
@@ -192,7 +197,7 @@ class HexMap
         }
     }
 
-    private function nextTurn(): Void
+    private function nextTurn()
     {
         level.clearHints();
 
@@ -203,27 +208,22 @@ class HexMap
         {
             if (land.isLocust())
                 gameWin = false;
-
-            if (land.landType == Field)
+            
+            var addSpice = land.harvestSpice();
+            if (addSpice > 0)
             {
-                var count = land.harvest();
-                if (count > 0)
-                {
-                    level.showHint(land.landPos.x, land.landPos.y - 15, "+" + count);
-                    spiceCount += count;
-                }
+                level.showHint(land.landPos.x, land.landPos.y - 15, "+" + addSpice);
+                spiceCount += addSpice;
             }
 
-            if (land.landType == Sand)
+            var addStone = land.harvestStone();
+            if (addStone > 0)
             {
-                land.hitLight();
-
-                //var count = land.hitLight();
-                //if (count > 0)
-                //{
-                //    level.addHint(land.landPos.x, land.landPos.y, "" + count);
-                //}
+                level.showHint(land.landPos.x, land.landPos.y - 15, "+" + addStone);
+                stoneCount += addStone;
             }
+            
+            land.decreaseLight();
         }
 
         if (lands[0].isLocust())
@@ -238,35 +238,97 @@ class HexMap
         }
     }
 
-    private function addCow(hex: HexLand): Void
+    private function addLight(land: HexLand): Bool
     {
-        var cow = hex.createCow();
-        if (cow != null)
-        {
-            level.add(cow);
-        }
-    }
+        if (spiceCount < Bonfire.PRICE)
+            return false;
 
-    private function addLight(hex: HexLand): Void
-    {
-        var fire = hex.createBonfire();
-        if (fire != null)
-        {
-            level.add(fire);
+        var fire = land.createBonfire();
 
-            var nears = getNearbyHexes(hex);
-            for (nearHex in nears)
+        if (fire == null)
+            return false;
+
+        spiceCount -= Bonfire.PRICE;
+
+        level.add(fire);
+
+        var nears = getNearbyHexes(land);
+        for (nearHex in nears)
+        {
+            if (nearHex.isLocust())
             {
-                if (nearHex.isLocust())
-                {
-                    locusts.remove(nearHex);
-                    nearHex.setLocust(false);
-                }
+                locusts.remove(nearHex);
+                nearHex.setLocust(false);
             }
         }
+
+        return true;
     }
 
-    public function update(elapsed: Float): Void 
+    private function addRaft(land: HexLand): Bool
+    {
+        if (spiceCount < Raft.PRICE_SPICE || stoneCount < Raft.PRICE_STONE)
+            return false;
+
+        var raft = land.createRaft();
+
+        if (raft == null)
+            return false;
+
+        spiceCount -= Raft.PRICE_SPICE;
+        stoneCount -= Raft.PRICE_STONE;
+
+        level.add(raft);
+        return true;
+    }
+
+    private function clickOnLand(land: HexLand)
+    {
+        if (land.isLocust())
+        {
+            level.playNone();
+            return;
+        }
+
+        if (land.landType == Field || land.landType == Stone)
+        {
+            var cow = land.createCow();
+            if (cow != null)
+            {
+                level.add(cow);
+                level.playCow();
+                return;
+            }
+        }
+
+        if (land.landType == Sand)
+        {
+            if (addLight(land))
+            {
+                level.playFire();
+                return;
+            }
+        }
+
+        if (land.landType == Water)
+        {
+            if (addRaft(land))
+            {
+                level.playFire();
+                return;
+            }
+
+            if (land.isRaft() && addLight(land))
+            {
+                level.playFire();
+                return;
+            }
+        }
+
+        level.playNone();
+    }
+
+    public function update(elapsed: Float)
     {
 #if mobile
         if (FlxG.touches.justReleased().length > 0)
@@ -291,31 +353,10 @@ class HexMap
 #else
             var mousePos = FlxG.mouse.getScreenPosition();
 #end
-            var land = hittestLand(mousePos);
-            if (land != null)
+            var hexUnderMouse = hittestLand(mousePos);
+            if (hexUnderMouse != null)
             {
-                if (!land.isLocust())
-                {
-                    if (land.landType == Field && !land.isCowsFull())
-                    {
-                        addCow(land);
-                        level.playCow();
-                    }
-                    else if (land.landType == Sand && !land.isLight() && spiceCount >= Bonfire.PRICE)
-                    {
-                        spiceCount -= Bonfire.PRICE;
-                        addLight(land);
-                        level.playFire();
-                    }
-                    else 
-                    {
-                        level.playNone();
-                    }
-                }
-                else
-                {
-                    level.playNone();
-                }
+                clickOnLand(hexUnderMouse);
 
                 spreadLocust();
                 processLocust();
@@ -328,28 +369,39 @@ class HexMap
         updateMouseCursor();
     }
 
-    private function updateMouseCursor(): Void
+    private function updateMouseCursor()
     {
 #if !mobile
-        FlxG.mouse.useSystemCursor = true;
-
         var mousePos = FlxG.mouse.getScreenPosition();
-        var land = hittestLand(mousePos);
-        if (land != null)
+        var hexUnderMouse = hittestLand(mousePos);
+
+        if (hexUnderMouse == null)
         {
-            FlxG.mouse.useSystemCursor = false;
-            if (land.landType == Field && !land.isLocust() && !land.isCowsFull())
-            {
-                FlxG.mouse.load(cursorCow.pixels, 4.0, -12, -8);
-            }
-            else if (land.landType == Sand && spiceCount >= Bonfire.PRICE && !land.isLight() && !land.isLocust())
-            {
-                FlxG.mouse.load(cursorLight.pixels, 3.0, -18, -15);
-            }
-            else 
-            {
-                FlxG.mouse.load(cursorSkip.pixels, 3.0, -18, -18);
-            }
+            FlxG.mouse.useSystemCursor = true;
+            return;
+        }
+    
+        FlxG.mouse.useSystemCursor = false;
+
+        if (hexUnderMouse.isLocust())
+        {
+            FlxG.mouse.load(cursorSkip.pixels, 3.0, -18, -18);
+        }
+        else if (hexUnderMouse.landType == Field && !hexUnderMouse.isCowsFull())
+        {
+            FlxG.mouse.load(cursorCow.pixels, 4.0, -12, -8);
+        }
+        else if (hexUnderMouse.landType == Stone && !hexUnderMouse.isCowsFull())
+        {
+            FlxG.mouse.load(cursorStone.pixels, 4.0, -12, -8);
+        }
+        else if (hexUnderMouse.landType == Sand && !hexUnderMouse.isLight() && spiceCount >= Bonfire.PRICE)
+        {
+            FlxG.mouse.load(cursorFire.pixels, 3.0, -18, -15);
+        }
+        else
+        {
+            FlxG.mouse.load(cursorSkip.pixels, 3.0, -18, -18);
         }
 #end
     }

@@ -44,7 +44,7 @@ class StateStart extends FlxState
         labelHint = new TextLabel(10, 430, "Click to start").hcenter().vpos(3);
 
         map = new HexMap();
-		map.createPatch(new FlxPoint(FlxG.width/2, FlxG.height/2), this);
+		map.createLandsAround(FlxG.width/2, FlxG.height/2, this);
         map.expandMap(this);
 
         var random: FlxRandom = new FlxRandom();

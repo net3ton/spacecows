@@ -14,6 +14,7 @@ class Main extends Sprite
 
 		addChild(new FlxGame(0, 0, StateStart));
 
-        //flixel.FlxG.switchState(new StateWin().setScore(250));
+		// to test leaderboards
+		//flixel.FlxG.switchState(new StateWin().setScore(250));
 	}
 }
