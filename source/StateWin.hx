@@ -66,11 +66,11 @@ class StateWin extends FlxState
 
         var land21 = makeNeighbour(land, Water, RightBottom);
         var land22 = makeNeighbour(land21, Field, RightTop).addCows(this, cowsTwo1);
-        makeNeighbour(land22, Sand, RightBottom).addBonfire(this);
+        makeNeighbour(land22, Sand, RightBottom).addBonefireAndPlayAnim(this);
 
         var land11 = makeNeighbour(land, Water, LeftBottom);
         var land12 = makeNeighbour(land11, Field, LeftTop).addCows(this, cowsTwo2);
-        makeNeighbour(land12, Sand, LeftBottom).addBonfire(this);
+        makeNeighbour(land12, Sand, LeftBottom).addBonefireAndPlayAnim(this);
     }
 
     private function makeNeighbour(hex: HexLand, type: HexLand.LandType, dir: HexLand.LandNeighbour): HexLand

@@ -43,12 +43,12 @@ class StateStart extends FlxState
 
         labelHint = new TextLabel(10, 430, "Click to start").hcenter().vpos(3);
 
-        map = new HexMap();
-		map.createLandsAround(FlxG.width/2, FlxG.height/2, this);
-        map.expandMap(this);
+        map = new HexMap(this);
+		map.createLandsAround(FlxG.width/2, FlxG.height/2);
+        map.expandMap();
 
         var random: FlxRandom = new FlxRandom();
-        for (land in map.getLands())
+        for (land in map.lands)
         {
             if (land.landType == Field && random.int(0, 99) < 30)
             {

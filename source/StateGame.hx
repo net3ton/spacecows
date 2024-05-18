@@ -2,7 +2,7 @@ package;
 
 import flixel.FlxG;
 import flixel.FlxState;
-import flixel.math.FlxPoint;
+import flixel.FlxSprite;
 import flixel.text.FlxText;
 import flixel.sound.FlxSound;
 import flixel.util.FlxColor;
@@ -20,7 +20,12 @@ class StateGame extends FlxState
 	private var fireSound: FlxSound;
 	private var noneSound: FlxSound;
 
-	private var map: HexMap;
+	private var cursorCow: FlxSprite;
+	private var cursorStone: FlxSprite;
+	private var cursorFire: FlxSprite;
+	private var cursorSkip: FlxSprite;
+
+	private var game: HexGame;
 	private var hints: Array<TextHint> = [];
 	private var hintsMaxCount = 10;
 
@@ -40,12 +45,20 @@ class StateGame extends FlxState
 		fireSound = FlxG.sound.load("assets/sounds/fire.wav");
 		noneSound = FlxG.sound.load("assets/sounds/none.wav");
 
+		cursorCow = new FlxSprite();
+		cursorCow.loadGraphic("assets/images/cursor-cow.png");
+		cursorStone = new FlxSprite();
+		cursorStone.loadGraphic("assets/images/cursor-stone.png");
+		cursorFire = new FlxSprite();
+		cursorFire.loadGraphic("assets/images/cursor-fire.png");
+		cursorSkip = new FlxSprite();
+		cursorSkip.loadGraphic("assets/images/cursor-skip.png");
+
 		add(labelSpice);
 		add(labelStone);
 		add(labelTurn);
 		
-		map = new HexMap();
-		map.createMap(FlxG.width/2, FlxG.height/2, this);
+		game = new HexGame(FlxG.width/2, FlxG.height/2, this);
 	
 		initHints();
 		updateLabels();
@@ -56,9 +69,9 @@ class StateGame extends FlxState
 
 	public function updateLabels()
 	{
-		labelSpice.text = "spice: " + map.spiceCount;
-		labelStone.text = "stone: " + map.stoneCount;
-		labelTurn.text = "months: " + map.turn;
+		labelSpice.text = "spice: " + game.spiceCount;
+		labelStone.text = "stone: " + game.stoneCount;
+		labelTurn.text = "months: " + game.turn;
 	}
 
 	private function initComplete()
@@ -147,10 +160,32 @@ class StateGame extends FlxState
 		noneSound.play();
 	}
 
+#if !mobile
+	public function setMouseCursorSkip()
+	{
+		FlxG.mouse.load(cursorSkip.pixels, 3.0, -18, -18);
+	}
+
+	public function setMouseCursorBonefire()
+	{
+		FlxG.mouse.load(cursorFire.pixels, 3.0, -18, -15);
+	}
+
+	public function setMouseCursorCow()
+	{
+		FlxG.mouse.load(cursorCow.pixels, 4.0, -12, -8);
+	}
+
+	public function setMouseCursorStone()
+	{
+		FlxG.mouse.load(cursorStone.pixels, 4.0, -12, -8);
+	}
+#end
+
 	override public function update(elapsed: Float)
 	{
 		super.update(elapsed);
-		map.update(elapsed);
+		game.update(elapsed);
 
 		for (hint in hints)
 			hint.process(elapsed);

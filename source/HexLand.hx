@@ -1,7 +1,5 @@
 package;
 
-//import lime.tools.Platform;
-//import openfl.utils.IAssetCache;
 import flixel.FlxSprite;
 import flixel.FlxState;
 import flixel.math.FlxPoint;
@@ -193,26 +191,23 @@ class HexLand extends FlxSprite
         return locust;
     }
 
-    public function isLight(): Bool
+    public function hasFire(): Bool
     {
         return light > 0;
     }
 
-    public function isRaft(): Bool
+    public function hasRaft(): Bool
     {
         return raft != null;
     }
 
-    public function hitCowByLocust(): Cow
+    public function hitCowByLocust()
     {
         if (cows.length > 0)
         {
            var cow = cows.pop();
            cow.kill();
-           return cow;
         }
-
-        return null;
     }
 
     public function decreaseLight(): Int
@@ -220,6 +215,7 @@ class HexLand extends FlxSprite
         if (light > 0)
         {
             bonfire.nextFrame();
+
             light -= 1;
             if (light <= 0)
             {
@@ -235,10 +231,10 @@ class HexLand extends FlxSprite
         return -1;
     }
 
-    public function createCow(): Cow
+    public function addCow(to: FlxState): Bool
     {
         if (isCowsFull())
-            return null;
+            return false;
 
         var nextCowInd = cows.length;
         var cow = null;
@@ -249,9 +245,12 @@ class HexLand extends FlxSprite
             cow = Cow.create(landPos.x, landPos.y, Stoned, nextCowInd);
 
         if (cow != null)
+        {
             cows.push(cow);
+            to.add(cow);
+        }
 
-        return cow;
+        return true;
     }
 
     public function isCowsFull(): Bool
@@ -264,50 +263,45 @@ class HexLand extends FlxSprite
         return true;
     }
 
-    public function createBonfire(): Bonfire
+    public function createBonfire(to: FlxState): Bool
     {
         if (bonfire == null)
         {
             light = 5;
             bonfire = new Bonfire(landPos.x - 8, landPos.y - 8);
-            return bonfire;
+            to.add(bonfire);
+            return true;
         }
 
-        return null;
+        return false;
     }
 
-    public function addBonfire(to: FlxState): HexLand
-    {
-        var fire = createBonfire();
-        if (fire != null)
-        {
-            fire.playIdleAnim();
-            to.add(fire);
-        }
-
-        return this;
-    }
-
-    public function createRaft(): Raft
+    public function createRaft(to: FlxState): Bool
     {
         if (raft == null)
         {
             raft = new Raft(landPos.x - 8, landPos.y - 8);
-            return raft;
+            to.add(raft);
+            return true;
         }
 
-        return null;
+        return false;
     }
 
     public function addCows(to: FlxState, count: Int): HexLand
     {
         for (i in 0...count)
         {
-            var cow = createCow();
-            if (cow != null)
-                to.add(cow);
+            addCow(to);
         }
 
         return this;
+    }
+
+    public function addBonefireAndPlayAnim(to: FlxState)
+    {
+        createBonfire(to);
+        if (bonfire != null)
+            bonfire.playIdleAnim();
     }
 }
