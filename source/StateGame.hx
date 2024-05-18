@@ -24,6 +24,7 @@ class StateGame extends FlxState
 	private var cursorStone: FlxSprite;
 	private var cursorFire: FlxSprite;
 	private var cursorSkip: FlxSprite;
+	private var cursorRaft: FlxSprite;
 
 	private var game: HexGame;
 	private var hints: Array<TextHint> = [];
@@ -53,6 +54,8 @@ class StateGame extends FlxState
 		cursorFire.loadGraphic("assets/images/cursor-fire.png");
 		cursorSkip = new FlxSprite();
 		cursorSkip.loadGraphic("assets/images/cursor-skip.png");
+		cursorRaft = new FlxSprite();
+		cursorRaft.loadGraphic("assets/images/cursor-raft.png");
 
 		add(labelSpice);
 		add(labelStone);
@@ -179,6 +182,11 @@ class StateGame extends FlxState
 	public function setMouseCursorStone()
 	{
 		FlxG.mouse.load(cursorStone.pixels, 4.0, -12, -8);
+	}
+
+	public function setMouseCursorRaft()
+	{
+		FlxG.mouse.load(cursorRaft.pixels, 3.0, -18, -18);
 	}
 #end
 

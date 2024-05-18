@@ -14,6 +14,7 @@ class HexGame
 
     private var state: StateGame;
     private var map: HexMap;
+    private var hexBase: HexLand;
 
     private var locusts: Array<HexLand> = [];
 
@@ -22,8 +23,8 @@ class HexGame
         state = to;
 
         map = new HexMap(to);
-        map.createBaseHex(x, y);
-        map.createLandsAround(x, y);
+        hexBase = map.createBaseHex(x, y);
+        map.expandMap();
         map.expandMap();
         map.expandMap();
 
@@ -121,7 +122,7 @@ class HexGame
             land.decreaseLight();
         }
 
-        if (map.lands[0].isLocust())
+        if (hexBase.isLocust())
         {
             gameOver = true;
             state.showGameOver();
@@ -133,7 +134,7 @@ class HexGame
         }
     }
 
-    private function addLight(land: HexLand): Bool
+    private function tryAddLight(land: HexLand): Bool
     {
         if (spiceCount < Bonfire.PRICE)
             return false;
@@ -156,7 +157,7 @@ class HexGame
         return true;
     }
 
-    private function addRaft(land: HexLand): Bool
+    private function tryAddRaft(land: HexLand): Bool
     {
         if (spiceCount < Raft.PRICE_SPICE || stoneCount < Raft.PRICE_STONE)
             return false;
@@ -188,7 +189,7 @@ class HexGame
 
         if (land.landType == Sand)
         {
-            if (addLight(land))
+            if (tryAddLight(land))
             {
                 state.playFire();
                 return;
@@ -197,13 +198,13 @@ class HexGame
 
         if (land.landType == Water)
         {
-            if (addRaft(land))
+            if (tryAddRaft(land))
             {
                 state.playFire();
                 return;
             }
 
-            if (land.hasRaft() && addLight(land))
+            if (land.hasRaft() && tryAddLight(land))
             {
                 state.playFire();
                 return;
@@ -271,23 +272,46 @@ class HexGame
         if (hexUnderMouse.isLocust())
         {
             state.setMouseCursorSkip();
+            return;
         }
-        else if (hexUnderMouse.landType == Field && !hexUnderMouse.isCowsFull())
+
+        if (!hexUnderMouse.isCowsFull())
         {
-            state.setMouseCursorCow();
+            if (hexUnderMouse.landType == Field)
+            {
+                state.setMouseCursorCow();
+                return;
+            }
+
+            if (hexUnderMouse.landType == Stone)
+            {
+                state.setMouseCursorStone();
+                return;
+            }
         }
-        else if (hexUnderMouse.landType == Stone && !hexUnderMouse.isCowsFull())
+
+        if (!hexUnderMouse.hasFire())
         {
-            state.setMouseCursorStone();
+            if (hexUnderMouse.landType == Sand || (hexUnderMouse.landType == Water && hexUnderMouse.hasRaft()))
+            {
+                if (spiceCount >= Bonfire.PRICE)
+                {
+                    state.setMouseCursorBonefire();
+                    return;
+                }
+            }
         }
-        else if (hexUnderMouse.landType == Sand && !hexUnderMouse.hasFire() && spiceCount >= Bonfire.PRICE)
+
+        if (hexUnderMouse.landType == Water && !hexUnderMouse.hasRaft())
         {
-            state.setMouseCursorBonefire();
+            if (spiceCount >= Raft.PRICE_SPICE && stoneCount >= Raft.PRICE_STONE)
+            {
+                state.setMouseCursorRaft();
+                return;
+            }
         }
-        else
-        {
-            state.setMouseCursorSkip();
-        }
+
+        state.setMouseCursorSkip();
 #end
     }
 }

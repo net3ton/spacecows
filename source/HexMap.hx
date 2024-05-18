@@ -24,7 +24,7 @@ class HexMap
         state = to;
     }
 
-    public function createLandsAround(x: Float, y: Float)
+    public function createRandomLandsAround(x: Float, y: Float)
 	{
         for (delta in hexDeltas)
         {
@@ -35,12 +35,12 @@ class HexMap
     public function expandMap()
     {
         for (hex in lands.copy())
-            createLandsAround(hex.landPos.x, hex.landPos.y);
+            createRandomLandsAround(hex.landPos.x, hex.landPos.y);
     }
 
-    public function createBaseHex(x: Float, y: Float)
+    public function createBaseHex(x: Float, y: Float): HexLand
     {
-        createLandIfNeeded(x, y, Base);
+        return createLandIfNeeded(x, y, Base);
     }
 
     private function getLandByPos(x: Float, y: Float, dist: Float): HexLand
@@ -60,16 +60,20 @@ class HexMap
         return getLandByPos(x, y, 10);
     }
 
-    private function createLandIfNeeded(x: Float, y: Float, type: HexLand.LandType)
+    private function createLandIfNeeded(x: Float, y: Float, type: HexLand.LandType): HexLand
     {
-        if (getLand(x, y) == null)
+        var hex = getLand(x, y);
+
+        if (hex == null)
         {
             //trace("hex in:" + x + ", " + y);
-            var hex = new HexLand(x, y, type);
+            hex = new HexLand(x, y, type);
 
             lands.push(hex);
             state.add(hex);
         }
+
+        return hex;
     }
 
     public function hittestLand(pos: FlxPoint): HexLand

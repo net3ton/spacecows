@@ -210,7 +210,7 @@ class HexLand extends FlxSprite
         }
     }
 
-    public function decreaseLight(): Int
+    public function decreaseLight()
     {
         if (light > 0)
         {
@@ -224,11 +224,7 @@ class HexLand extends FlxSprite
 
                 //initTile(Sea);
             }
-
-            return light;
         }
-
-        return -1;
     }
 
     public function addCow(to: FlxState): Bool
