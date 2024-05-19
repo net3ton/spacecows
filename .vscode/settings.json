@@ -1,0 +1,7 @@
+{
+	"search.exclude": {
+		"export/**/*.*": true
+	},
+	//"lime.defaultTargetConfiguration": "Neko",
+	"cmake.configureOnOpen": false
+}
